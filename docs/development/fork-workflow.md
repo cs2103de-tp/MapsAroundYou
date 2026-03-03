@@ -9,7 +9,7 @@ cs2103de-tp/MapsAroundYou     # Organization (upstream/main)
         ↑
         │  Pull Requests
         │
-<username>/MapsAroundYou      # Personal fork (your GitHub account)
+<your-username>/MapsAroundYou # Personal fork (your GitHub account)
         ↑
         │
    Local Clone                # Local development

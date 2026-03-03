@@ -81,5 +81,5 @@ git push origin main
 ## Related Documents
 
 - [Branch Protection ADR](./0001-enforce-branch-protection-for-all.md)
-- [Development Workflow](../development/git-commit-conventions.md)
-- [Fork Workflow Guide](../development/fork-workflow.md)
+- [Development Workflow](../../development/git-commit-conventions.md)
+- [Fork Workflow Guide](../../development/fork-workflow.md)
