@@ -28,6 +28,6 @@ Enable **Enforce for administrators** on the `main` branch protection rule. The 
 - **Positive:** Every change to `main` is reviewed, providing a safety net against bugs and unintended changes.
 - **Positive:** Admins can no longer accidentally (or intentionally) bypass the review process, keeping the team accountable.
 - **Positive:** A clear audit trail exists for all changes via PR history.
-- **Negative:** Hotfixes or urgent changes will require at least one review, which may slow down emergency responses. In such cases, a team member should be available to perform an expedited review.
+- **Negative:** Hotfixes or urgent changes are encouraged to request a review (recommended best practice), but the merge is not blocked if no approval is given. In urgent cases, contributors should still aim for an expedited review where possible.
 - **Negative:** To modify or temporarily disable branch protection (e.g., for repository maintenance), an admin must do so explicitly via GitHub settings, making the bypass intentional and visible.
  

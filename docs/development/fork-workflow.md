@@ -137,7 +137,7 @@ git rebase main
 ## Branch Protection Rules
 
 The organization's `main` branch has these protection rules:
-- We recommend at least 1 approving review
+- Approving review: recommended (not enforced by branch protection)
 - Protection applies to administrators (no bypass)
 - Dismiss stale reviews when new commits are pushed
 - Require conversation resolution before merging

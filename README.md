@@ -3,7 +3,7 @@ Maps the city around you.
 
 ## Contributing
 
-All changes to `main` should go through a pull request. We recommend asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to request review.
+All changes to `main` must go through a pull request. We recommend asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to request review.
 
 ### Workflow
 
