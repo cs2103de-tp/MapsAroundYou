@@ -38,7 +38,7 @@ Organization: cs2103de-tp
 
 The organization's `main` branch has the following protection rules:
 
-- **Require pull request reviews before merging**: We recommend at least 1 reviewer (no longer enforced)
+- **Require pull request reviews before merging**: We recommend at least 1 reviewer
 - **Include administrators**: Protection rules apply to admins (no bypass)
 - **Dismiss stale reviews**: When new commits are pushed
 - **Require conversation resolution**: All conversations must be resolved before merge

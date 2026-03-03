@@ -128,14 +128,14 @@ git rebase main
 
 - **Never push directly to the organization's main branch** - it is protected
 - **Always create a PR** for any changes you want to merge
-- **We recommend getting at least 1 approval** before merging (no longer enforced)
+- **We recommend getting at least 1 approval** before merging
 - **Keep your fork updated** by regularly syncing with upstream
 - **Resolve all conversations** in the PR before it can be merged
 
 ## Branch Protection Rules
 
 The organization's `main` branch has these protection rules:
-- We recommend at least 1 approving review (no longer enforced)
+- We recommend at least 1 approving review
 - Protection applies to administrators (no bypass)
 - Dismiss stale reviews when new commits are pushed
 - Require conversation resolution before merging
