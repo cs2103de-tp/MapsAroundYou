@@ -100,9 +100,11 @@ git remote -v
 
 ### After PR Review
 
-Once your PR is approved:
-- The reviewer will merge it, OR
-- You can merge it yourself if the branch is up to date with main
+Once your PR is ready to merge (all conversations resolved and checks pass):
+- If a reviewer has approved it, they may merge it, OR
+- You can merge it yourself once the branch is up to date with main
+
+> **Note:** Reviewer approval is recommended but not enforced. Ensure all conversations are resolved before merging.
 
 ## Syncing Your Fork
 

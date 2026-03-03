@@ -50,7 +50,7 @@ Personal forks have **no branch protection rules**, allowing direct pushes for d
 
 ### Positive
 
-- All changes to the organization's main branch require code review
+- All changes to the organization's main branch require a pull request (code review is recommended best practice)
 - Clear separation between personal development and official codebase
 - Contributors can work independently on their forks
 - Audit trail through PR history
