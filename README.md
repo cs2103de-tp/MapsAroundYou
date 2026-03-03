@@ -3,7 +3,7 @@ Maps the city around you.
 
 ## Contributing
 
-All changes to `main` must go through a pull request with at least **1 approving review**. This rule is enforced for all contributors, including repository admins and owners.
+All changes to `main` should go through a pull request. We recommend asking for at least **1 approving review** before merging. While this is no longer enforced, it is still best practice to request review.
 
 ### Workflow
 

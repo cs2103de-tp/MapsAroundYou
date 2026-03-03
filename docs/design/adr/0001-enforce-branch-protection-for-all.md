@@ -20,7 +20,7 @@ Enable **Enforce for administrators** on the `main` branch protection rule. The 
 
 - Direct pushes to `main` are blocked for all contributors, including repository admins and owners.
 - All changes must be introduced via a pull request.
-- At least **1 approving review** is required before a PR can be merged.
+- We recommend asking for at least **1 approving review** before merging a PR. While no longer enforced, it remains best practice to request review.
 - Force pushes to `main` are disabled.
 
 ## Consequences

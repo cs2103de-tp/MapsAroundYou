@@ -38,7 +38,7 @@ Organization: cs2103de-tp
 
 The organization's `main` branch has the following protection rules:
 
-- **Require pull request reviews before merging**: At least 1 reviewer required
+- **Require pull request reviews before merging**: We recommend at least 1 reviewer (no longer enforced)
 - **Include administrators**: Protection rules apply to admins (no bypass)
 - **Dismiss stale reviews**: When new commits are pushed
 - **Require conversation resolution**: All conversations must be resolved before merge
@@ -64,7 +64,7 @@ Personal forks have **no branch protection rules**, allowing direct pushes for d
 5. **Make changes and commit**: Follow commit conventions
 6. **Push to your fork**: Push your branch to your personal fork
 7. **Create PR**: Open a pull request from your fork to the organization
-8. **Review**: Wait for at least 1 reviewer approval
+8. **Review**: We recommend waiting for at least 1 reviewer approval before merging
 9. **Merge**: After approval, the PR will be merged to organization's main
 
 ### Syncing with Upstream
