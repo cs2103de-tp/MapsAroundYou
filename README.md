@@ -14,3 +14,7 @@ All changes to `main` must go through a pull request. We recommend asking for at
 5. **Create a PR** from your fork to `cs2103de-tp/MapsAroundYou`
 
 See [docs/development/fork-workflow.md](docs/development/fork-workflow.md) for detailed setup instructions and [docs/development/git-commit-conventions.md](docs/development/git-commit-conventions.md) for commit guidelines.
+
+## Offline Data Generation
+
+The offline commute matrix generator uses a teammate-local OneMap token via `ONEMAP_TOKEN`. See [docs/ops/build-and-run.md](docs/ops/build-and-run.md) for token setup and regeneration steps.

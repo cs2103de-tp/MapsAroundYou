@@ -25,3 +25,20 @@ replay_pid*
 
 # Intellij
 *.idea
+
+# Python virtual environments
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Microsoft Office temporary files
+~$*
+
+# Python virtual environments
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
