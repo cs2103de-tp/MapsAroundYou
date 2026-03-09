@@ -1,0 +1,56 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+group = 'mapsaroundyou'
+version = '0.1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-csv:1.14.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+
+application {
+    mainClass = 'mapsaroundyou.cli.MapsAroundYouApp'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:all', '-Werror']
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+}
+
+tasks.withType(JavaCompile).configureEach {
+    doFirst {
+        if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)) {
+            throw new GradleException('MapsAroundYou requires Java 21 or newer to build.')
+        }
+    }
+}

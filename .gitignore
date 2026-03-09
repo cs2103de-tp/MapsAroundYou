@@ -1,6 +1,10 @@
 # Compiled class file
 *.class
 
+# Gradle
+.gradle/
+build/
+
 # Log file
 *.log
 
@@ -12,6 +16,7 @@
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -24,7 +29,7 @@ hs_err_pid*
 replay_pid*
 
 # Intellij
-*.idea
+.idea/
 
 # Python virtual environments
 .venv/

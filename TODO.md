@@ -1,9 +1,9 @@
 # TODO
 
 ## Week 8 — Project Setup
-- [ ] Scaffold Java project with Gradle/Maven and confirm it builds - Peter/Shanxin (Vincent for reviews or simple follow-up GUI)
-- [ ] Prepare local data files: supported destination list (e.g. NUS/NTU/SMU/NUH/Orchard), curated housing listings (~20-50 units from PropertyGuru/99.co), and travel-time matrix between listing origin nodes and destinations (e.g. from LTA) - WeiJie
-- [ ] Fill in `build-and-run.md` with runnable JAR instructions - optional
+- [x] Scaffold Java project with Gradle/Maven and confirm it builds - Peter/Shanxin (Vincent for reviews or simple follow-up GUI)
+- [x] Prepare local data files: supported destination list (e.g. NUS/NTU/SMU/NUH/Orchard), curated housing listings (~20-50 units from PropertyGuru/99.co), and travel-time matrix between listing origin nodes and destinations (e.g. from LTA) - WeiJie
+- [x] Fill in `build-and-run.md` with runnable JAR instructions - optional
 
 ## Week 9 — v1.2 (First Increment)
 - [ ] US1: Destination input panel + validation against supported destination list

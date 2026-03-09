@@ -1,5 +1,35 @@
 # MapsAroundYou
-Maps the city around you.
+Offline smart rental search scaffold for the MapsAroundYou team project.
+
+## Quick Start
+
+Prerequisite: Java 21 or newer on `PATH` or in `JAVA_HOME`.
+
+Run the current CLI entrypoint:
+
+```powershell
+.\gradlew run
+```
+
+Interactive mode now stays open for repeated searches until the user types `exit`.
+
+Run the flag-driven search mode:
+
+```powershell
+.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
+```
+
+Run tests:
+
+```powershell
+.\gradlew test
+```
+
+## Current Scope
+
+- Week 8 scaffold uses a CLI as the temporary app surface.
+- The codebase is organized into `storage`, `service`, `logic`, and `cli` layers so GUI work can plug in later.
+- Runtime data stays local under `src/main/resources/commute_data/`.
 
 ## Contributing
 

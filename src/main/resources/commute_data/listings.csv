@@ -1,0 +1,21 @@
+listingId,title,monthlyRent,hasAircon,originNodeId,address,roomType,sourcePlatform,notes
+L001,City-fringe room in Bukit Merah,1550,true,R01,Blk 1 Bukit Merah Central,Singleroom,PropertyGuru,Curated Week 8 demo listing
+L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo room,99.co,Near central amenities
+L003,Queenstown budget room,1450,false,R03,Blk 50 Queenstown Close,HDB room,PropertyGuru,Good value option
+L004,Dawson studio-style common room,2100,true,R04,Blk 88 Dawson Road,Common room,99.co,Higher rent but newer estate
+L005,Toa Payoh central room,1650,true,R05,Blk 1 Toa Payoh Lorong 1,HDB room,PropertyGuru,Walkable to town center
+L006,Toa Payoh East shared unit,1500,false,R06,Blk 190 Toa Payoh East,Shared room,99.co,Student-friendly budget
+L007,Kallang fringe compact room,1750,true,R07,Blk 1 Kallang Bahru,Condo room,PropertyGuru,Good city access
+L008,Kallang sports hub area room,1680,true,R08,Blk 8 Upper Boon Keng Road,HDB room,99.co,Convenient bus access
+L009,Novena area private room,2200,true,R09,308 Novena Rise,Private room,PropertyGuru,Premium central option
+L010,Jalan Besar starter room,1580,false,R10,Blk 1 Jalan Besar,Common room,99.co,Simple central listing
+L011,Bedok South aircon room,1420,true,R11,Blk 1 Bedok South Avenue 1,HDB room,PropertyGuru,Affordable east option
+L012,Bedok North family-friendly room,1480,false,R12,Blk 205 Bedok North Street 1,Shared room,99.co,Larger unit with fan only
+L013,Bedok Reservoir calm room,1600,true,R13,Blk 531 Bedok Reservoir Road,HDB room,PropertyGuru,Quiet neighborhood
+L014,Tampines town center room,1720,true,R14,Blk 101 Tampines Street 11,Condo room,99.co,Popular for east workers
+L015,Tampines East budget pick,1390,false,R15,Blk 201 Tampines Street 21,HDB room,PropertyGuru,Most affordable east listing
+L016,Tampines North newer room,1660,true,R16,Blk 401 Tampines Street 41,Common room,99.co,Newer BTO cluster
+L017,Pasir Ris breezy room,1520,true,R17,Blk 452 Pasir Ris Drive 6,HDB room,PropertyGuru,Good for Changi commute
+L018,Pasir Ris family condo room,1880,true,R18,Blk 521 Pasir Ris Street 52,Condo room,99.co,Close to mall
+L019,MacPherson connector room,1700,false,R19,Blk 1 Circuit Road,HDB room,PropertyGuru,Good interchange access
+L020,Marine Parade premium room,2150,true,R20,428 Marine Parade Road,Private room,99.co,East coast premium option
