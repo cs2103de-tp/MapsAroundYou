@@ -19,10 +19,10 @@ Run the flag-driven search mode:
 .\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
 ```
 
-Run tests:
+Run the local quality gate:
 
 ```powershell
-.\gradlew test
+.\gradlew clean check
 ```
 
 ## Current Scope
@@ -33,7 +33,9 @@ Run tests:
 
 ## Contributing
 
-All changes to `main` must go through a pull request. We recommend asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to request review.
+All changes to `main` must go through a pull request. The required `CI` check must pass before merge. We recommend
+asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to
+request review.
 
 ### Workflow
 

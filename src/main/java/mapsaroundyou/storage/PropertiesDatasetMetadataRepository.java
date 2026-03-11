@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Properties;
 
-public class PropertiesDatasetMetadataRepository implements DatasetMetadataRepository {
+public final class PropertiesDatasetMetadataRepository implements DatasetMetadataRepository {
     private final DatasetMetadata datasetMetadata;
 
     public PropertiesDatasetMetadataRepository(String resourcePath) {
