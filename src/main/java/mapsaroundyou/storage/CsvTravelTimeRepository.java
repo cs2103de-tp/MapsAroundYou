@@ -1,5 +1,6 @@
 package mapsaroundyou.storage;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mapsaroundyou.common.DataLoadException;
 import mapsaroundyou.model.CommuteEstimate;
 
@@ -58,13 +59,21 @@ public final class CsvTravelTimeRepository implements TravelTimeRepository {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "knownDestinations is created once as an unmodifiable set and never mutated afterward."
+    )
     public Set<String> findKnownDestinations() {
-        return Set.copyOf(knownDestinations);
+        return knownDestinations;
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "knownDestinationsByOrigin is created once as an unmodifiable map of immutable sets."
+    )
     public Map<String, Set<String>> findKnownDestinationsByOrigin() {
-        return copyKnownDestinationsByOrigin(knownDestinationsByOrigin);
+        return knownDestinationsByOrigin;
     }
 
     private static Map<String, Map<String, CommuteEstimate>> load(ReaderSupplier readerSupplier, String sourceName) {
@@ -109,15 +118,5 @@ public final class CsvTravelTimeRepository implements TravelTimeRepository {
             destinationsByOrigin.put(entry.getKey(), Set.copyOf(entry.getValue().keySet()));
         }
         return Collections.unmodifiableMap(destinationsByOrigin);
-    }
-
-    private static Map<String, Set<String>> copyKnownDestinationsByOrigin(
-            Map<String, Set<String>> destinationsByOrigin
-    ) {
-        Map<String, Set<String>> destinationsCopy = new LinkedHashMap<>();
-        for (Map.Entry<String, Set<String>> entry : destinationsByOrigin.entrySet()) {
-            destinationsCopy.put(entry.getKey(), Set.copyOf(entry.getValue()));
-        }
-        return Collections.unmodifiableMap(destinationsCopy);
     }
 }
