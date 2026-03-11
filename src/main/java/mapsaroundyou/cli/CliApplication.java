@@ -1,11 +1,13 @@
 package mapsaroundyou.cli;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.common.NoResultsException;
 import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.TransportMode;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -13,11 +15,15 @@ import java.util.Scanner;
 /**
  * Orchestrates CLI execution for interactive and flag-driven modes.
  */
-public class CliApplication {
+public final class CliApplication {
     private final SearchLogic searchLogic;
     private final CliCommandParser commandParser;
     private final CliPrinter cliPrinter;
 
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP2",
+            justification = "CliApplication composes shared services and does not expose mutable collaborator state."
+    )
     public CliApplication(SearchLogic searchLogic, CliCommandParser commandParser, CliPrinter cliPrinter) {
         this.searchLogic = searchLogic;
         this.commandParser = commandParser;
@@ -58,7 +64,7 @@ public class CliApplication {
         cliPrinter.printDestinations(destinations);
         cliPrinter.printInteractiveInstructions();
 
-        try (Scanner scanner = new Scanner(System.in)) {
+        try (Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8)) {
             while (true) {
                 String destinationId = prompt(scanner, "Destination ID");
                 if (shouldExit(destinationId)) {

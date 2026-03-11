@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class CsvTravelTimeRepository implements TravelTimeRepository {
+public final class CsvTravelTimeRepository implements TravelTimeRepository {
     private static final String[] REQUIRED_HEADERS = {
             "flat_id",
             "destination_id",
@@ -59,12 +59,12 @@ public class CsvTravelTimeRepository implements TravelTimeRepository {
 
     @Override
     public Set<String> findKnownDestinations() {
-        return knownDestinations;
+        return Set.copyOf(knownDestinations);
     }
 
     @Override
     public Map<String, Set<String>> findKnownDestinationsByOrigin() {
-        return knownDestinationsByOrigin;
+        return copyKnownDestinationsByOrigin(knownDestinationsByOrigin);
     }
 
     private static Map<String, Map<String, CommuteEstimate>> load(ReaderSupplier readerSupplier, String sourceName) {
@@ -109,5 +109,15 @@ public class CsvTravelTimeRepository implements TravelTimeRepository {
             destinationsByOrigin.put(entry.getKey(), Set.copyOf(entry.getValue().keySet()));
         }
         return Collections.unmodifiableMap(destinationsByOrigin);
+    }
+
+    private static Map<String, Set<String>> copyKnownDestinationsByOrigin(
+            Map<String, Set<String>> destinationsByOrigin
+    ) {
+        Map<String, Set<String>> destinationsCopy = new LinkedHashMap<>();
+        for (Map.Entry<String, Set<String>> entry : destinationsByOrigin.entrySet()) {
+            destinationsCopy.put(entry.getKey(), Set.copyOf(entry.getValue()));
+        }
+        return Collections.unmodifiableMap(destinationsCopy);
     }
 }

@@ -115,7 +115,12 @@ class CliApplicationTest {
         }
 
         @Override
-        public void setPreferences(int maxRent, int maxCommuteMinutes, boolean requireAircon, TransportMode transportMode) {
+        public void setPreferences(
+                int maxRent,
+                int maxCommuteMinutes,
+                boolean requireAircon,
+                TransportMode transportMode
+        ) {
         }
 
         @Override
