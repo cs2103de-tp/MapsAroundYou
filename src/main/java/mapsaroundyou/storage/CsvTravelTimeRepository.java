@@ -1,5 +1,6 @@
 package mapsaroundyou.storage;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mapsaroundyou.common.DataLoadException;
 import mapsaroundyou.model.CommuteEstimate;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class CsvTravelTimeRepository implements TravelTimeRepository {
+public final class CsvTravelTimeRepository implements TravelTimeRepository {
     private static final String[] REQUIRED_HEADERS = {
             "flat_id",
             "destination_id",
@@ -58,11 +59,19 @@ public class CsvTravelTimeRepository implements TravelTimeRepository {
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "knownDestinations is created once as an unmodifiable set and never mutated afterward."
+    )
     public Set<String> findKnownDestinations() {
         return knownDestinations;
     }
 
     @Override
+    @SuppressFBWarnings(
+            value = "EI_EXPOSE_REP",
+            justification = "knownDestinationsByOrigin is created once as an unmodifiable map of immutable sets."
+    )
     public Map<String, Set<String>> findKnownDestinationsByOrigin() {
         return knownDestinationsByOrigin;
     }

@@ -22,7 +22,10 @@ public class CliPrinter {
     public void printHelp() {
         System.out.println("Usage:");
         System.out.println("  ./gradlew run");
-        System.out.println("  ./gradlew run --args=\"search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon\"");
+        System.out.println(
+                "  ./gradlew run --args=\"search --destination D01 --max-rent 2200 "
+                        + "--max-commute 45 --require-aircon\""
+        );
         System.out.println("  (On Windows, use '.\\\\gradlew' instead of './gradlew'.)");
         System.out.println();
         System.out.println("Commands:");

@@ -31,6 +31,9 @@ replay_pid*
 # Intellij
 .idea/
 
+# VS Code workspace settings
+.vscode/
+
 # Python virtual environments
 .venv/
 
