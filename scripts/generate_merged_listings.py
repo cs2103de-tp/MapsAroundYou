@@ -86,7 +86,7 @@ def generate_merged_listings(input_csv=r"C:\Users\Wei Jie\CS2103DE\MapsAroundYou
                     
                     # Write row, converting the amenities dict to a JSON string
                     writer.writerow({
-                        "flat_id": listing_id,
+                        "listingId": listing_id,
                         "title": title,
                         "monthlyRent": rent,
                         "flat_id": flat_id,

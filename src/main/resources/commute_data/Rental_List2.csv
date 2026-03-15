@@ -1,4 +1,4 @@
-flat_id,title,monthlyRent,flat_id,address,roomType,sourcePlatform,notes,amenities
+listing_id,title,monthlyRent,flat_id,address,roomType,sourcePlatform,notes,amenities
 L001,Spacious shared room in Bukit Merah,1600,R01,Blk 1 Jalan Bukit Merah,Shared room,99.co,Quiet neighborhood,"{""hasAircon"": false, ""hasHeater"": true, ""hasSwimmingPool"": false, ""hasGym"": false}"
 L002,Cozy common room in Tiong Bahru,1780,R02,Blk 123 Kim Tian Road,Common room,PropertyGuru,Student-friendly budget,"{""hasAircon"": true, ""hasHeater"": true, ""hasSwimmingPool"": false, ""hasGym"": false}"
 L003,Studio-style private room in Queenstown,2600,R03,Blk 50 Strathmore Avenue,Private room,99.co,Simple central listing,"{""hasAircon"": false, ""hasHeater"": true, ""hasSwimmingPool"": true, ""hasGym"": true}"
