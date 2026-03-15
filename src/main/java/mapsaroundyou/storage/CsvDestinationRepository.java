@@ -7,13 +7,12 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CsvDestinationRepository implements DestinationRepository {
+public final class CsvDestinationRepository implements DestinationRepository {
     private static final String[] REQUIRED_HEADERS = {"ID", "Category", "Location Name", "Postal Code"};
 
     private final Map<String, Destination> destinationsById;

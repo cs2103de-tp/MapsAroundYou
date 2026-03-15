@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CsvListingRepository implements ListingRepository {
+public final class CsvListingRepository implements ListingRepository {
     private static final String[] REQUIRED_HEADERS = {
             "listingId",
             "title",

@@ -1,5 +1,7 @@
 plugins {
     id 'application'
+    id 'checkstyle'
+    id 'com.github.spotbugs' version '6.4.8'
     id 'java'
 }
 
@@ -15,10 +17,18 @@ repositories {
     mavenCentral()
 }
 
+checkstyle {
+    toolVersion = '13.2.0'
+    configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+}
+
 dependencies {
     implementation 'org.apache.commons:commons-csv:1.14.1'
 
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.8'
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.8'
 }
 
 application {
@@ -35,6 +45,31 @@ tasks.named('test') {
     testLogging {
         events 'passed', 'skipped', 'failed'
     }
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    effort = com.github.spotbugs.snom.Effort.valueOf('MAX')
+    reportLevel = com.github.spotbugs.snom.Confidence.valueOf('MEDIUM')
+    ignoreFailures = false
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named('spotbugsTest') {
+    enabled = false
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('spotbugsMain')
 }
 
 tasks.named('jar') {

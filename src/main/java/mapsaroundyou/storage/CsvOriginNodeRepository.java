@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CsvOriginNodeRepository implements OriginNodeRepository {
+public final class CsvOriginNodeRepository implements OriginNodeRepository {
     private static final String[] REQUIRED_HEADERS = {"Flat_ID", "Postal_Code", "Region", "Area_Name"};
 
     private final Map<String, OriginNode> originNodesById;

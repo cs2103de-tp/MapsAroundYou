@@ -91,7 +91,12 @@ public class DefaultSearchLogic implements SearchLogic {
     }
 
     @Override
-    public void setPreferences(int maxRent, int maxCommuteMinutes, boolean requireAircon, TransportMode transportMode) {
+    public void setPreferences(
+            int maxRent,
+            int maxCommuteMinutes,
+            boolean requireAircon,
+            TransportMode transportMode
+    ) {
         if (maxRent < 0) {
             throw new InvalidInputException("Maximum rent must be at least 0.");
         }
