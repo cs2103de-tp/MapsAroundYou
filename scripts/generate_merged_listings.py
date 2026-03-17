@@ -1,8 +1,16 @@
 import csv
 import json
 import random
-import requests
 import time
+from pathlib import Path
+
+import requests
+
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
+DEFAULT_INPUT_CSV = DATA_DIR / "Rental_List.csv"
+DEFAULT_OUTPUT_CSV = DATA_DIR / "Rental_List2.csv"
 
 def get_real_address(postal_code, fallback_area):
     """Fetches the real block and street name from OneMap API based on postal code."""
@@ -28,8 +36,7 @@ def get_real_address(postal_code, fallback_area):
     # Fallback if API fails or postal is invalid
     return f"Blk {random.randint(1, 200)} {fallback_area} Road"
 
-def generate_merged_listings(input_csv=r"C:\Users\Wei Jie\CS2103DE\MapsAroundYou\src\main\resources\commute_data\Rental_List.csv", 
-                             output_csv=r"C:\Users\Wei Jie\CS2103DE\MapsAroundYou\src\main\resources\commute_data\Rental_List2.csv"):
+def generate_merged_listings(input_csv=DEFAULT_INPUT_CSV, output_csv=DEFAULT_OUTPUT_CSV):
     adjectives = ["City-fringe", "Quiet stay near", "Budget", "Studio-style", "Central", "Premium", "Breezy", "Cozy", "Spacious"]
     room_types = ["Singleroom", "Condo room", "HDB room", "Common room", "Shared room", "Private room"]
     platforms = ["PropertyGuru", "99.co"]
@@ -42,10 +49,10 @@ def generate_merged_listings(input_csv=r"C:\Users\Wei Jie\CS2103DE\MapsAroundYou
 
     try:
         print(f"Reading from {input_csv} and querying OneMap for real addresses...")
-        with open(input_csv, mode='r', encoding='utf-8-sig') as infile:
+        with Path(input_csv).open(mode='r', encoding='utf-8-sig') as infile:
             reader = csv.DictReader(infile)
             
-            with open(output_csv, mode='w', newline='', encoding='utf-8') as outfile:
+            with Path(output_csv).open(mode='w', newline='', encoding='utf-8') as outfile:
                 # Updated headers: Restored flat_id, removed fares
                 headers = ["listingId", "title", "monthlyRent", "flat_id", "address", "roomType", "sourcePlatform", "notes", "amenities"]
                 writer = csv.DictWriter(outfile, fieldnames=headers)
@@ -100,10 +107,29 @@ def generate_merged_listings(input_csv=r"C:\Users\Wei Jie\CS2103DE\MapsAroundYou
         print(f"\nSuccess! Generated '{output_csv}' with real addresses and nested JSON amenities.")
         
     except FileNotFoundError:
-        print(f"[!] Error: Could not find '{input_csv}'. Please ensure it is in the same directory.")
+        print(f"[!] Error: Could not find '{input_csv}'. Please verify the path or pass --input.")
 
 if __name__ == "__main__":
-    generate_merged_listings()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate merged rental listings with enriched addresses and amenities."
+    )
+    parser.add_argument(
+        "--input",
+        default=str(DEFAULT_INPUT_CSV),
+        help="Input rental CSV path (default: repo-relative Rental_List.csv).",
+    )
+    parser.add_argument(
+        "--output",
+        default=str(DEFAULT_OUTPUT_CSV),
+        help="Output CSV path (default: repo-relative Rental_List2.csv).",
+    )
+    args = parser.parse_args()
+
+    generate_merged_listings(args.input, args.output)
+
+
 
 
     
