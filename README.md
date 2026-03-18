@@ -33,7 +33,7 @@ Run the local quality gate:
 
 ## Contributing
 
-All changes to `main` must go through a pull request. The required `CI` check must pass before merge. We recommend
+All changes to `main` must go through a pull request. The required `PR Quality Gate` check must pass before merge. We recommend
 asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to
 request review.
 
