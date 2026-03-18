@@ -34,13 +34,6 @@ replay_pid*
 # VS Code workspace settings
 .vscode/
 
-# Python virtual environments
-.venv/
-
-# Python cache files
-__pycache__/
-*.pyc
-
 # Microsoft Office temporary files
 ~$*
 
@@ -50,3 +43,7 @@ __pycache__/
 # Python cache files
 __pycache__/
 *.pyc
+
+# Local scratch directories
+bin/
+tmp/
