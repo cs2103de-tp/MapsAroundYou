@@ -76,30 +76,37 @@ The application uses local CSV datasets instead of live APIs at runtime. This do
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `listingId` | String | Yes | Unique identifier |
-| `title` | String | Yes | Listing title |
-| `monthlyRent` | int | Yes | Monthly rent (SGD) |
-| `hasAircon` | boolean | Yes | Has air conditioning |
-| `originNodeId` | String | Yes | Lookup node used to match this listing to the travel-time matrix |
-| `address` | String | No | Full address |
-| `roomType` | String | No | e.g., "HDB", "Condo" |
-| `sourcePlatform` | String | No | Source site, e.g. `PropertyGuru`, `99.co` |
-| `destinationTags` | List&lt;String&gt; | No | Optional tags indicating which destinations this listing set was curated around |
-| `notes` | String | No | Additional notes |
+| `listingId` | String | Yes | Unique identifier (e.g., `L001`, `L002`) |
+| `title` | String | Yes | Descriptive title for the property |
+| `monthlyRent` | int | Yes | Monthly rent in SGD |
+| `hasAircon` | boolean | Yes | Whether the listing has air conditioning |
+| `originNodeId` | String | Yes | Origin node ID used to match this listing to the offline transit matrix (maps to `Flat_ID` in `Rental_List.csv`) |
+| `address` | String | Yes | Real block and street name |
+| `roomType` | String | Yes | Category of room (e.g., "Condo room", "HDB room", "Singleroom") |
+| `sourcePlatform` | String | Yes | Source platform (e.g., `PropertyGuru`, `99.co`) |
+| `notes` | String | Yes | Additional descriptive notes |
 
-**Example (JSON):**
+**Example (CSV):**
+
+```csv
+listingId,title,monthlyRent,hasAircon,originNodeId,address,roomType,sourcePlatform,notes
+L001,City-fringe condo room in Jurong East,1850,true,R01,Blk 123 Jurong East Street 13,Condo room,PropertyGuru,Curated demo listing
+L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo room,99.co,Near central amenities
+```
+
+**Example (JSON representation):**
 
 ```json
 {
   "listingId": "L001",
-  "title": "Cozy room near Jurong East",
-  "monthlyRent": 1200,
+  "title": "City-fringe condo room in Jurong East",
+  "monthlyRent": 1850,
   "hasAircon": true,
-  "originNodeId": "ORIGIN-CLEMENTI-AVE-3",
-  "address": "123 Jurong Street",
-  "roomType": "HDB",
+  "originNodeId": "R01",
+  "address": "Blk 123 Jurong East Street 13",
+  "roomType": "Condo room",
   "sourcePlatform": "PropertyGuru",
-  "destinationTags": ["DEST-NUS"]
+  "notes": "Curated demo listing"
 }
 ```
 
