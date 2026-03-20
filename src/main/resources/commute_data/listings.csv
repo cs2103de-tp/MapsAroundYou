@@ -1,21 +1,51 @@
 listingId,title,monthlyRent,hasAircon,originNodeId,address,roomType,sourcePlatform,notes
-L001,City-fringe room in Bukit Merah,1550,true,R01,Blk 1 Bukit Merah Central,Singleroom,PropertyGuru,Curated Week 8 demo listing
-L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo room,99.co,Near central amenities
-L003,Queenstown budget room,1450,false,R03,Blk 50 Queenstown Close,HDB room,PropertyGuru,Good value option
-L004,Dawson studio-style common room,2100,true,R04,Blk 88 Dawson Road,Common room,99.co,Higher rent but newer estate
-L005,Toa Payoh central room,1650,true,R05,Blk 1 Toa Payoh Lorong 1,HDB room,PropertyGuru,Walkable to town center
-L006,Toa Payoh East shared unit,1500,false,R06,Blk 190 Toa Payoh East,Shared room,99.co,Student-friendly budget
-L007,Kallang fringe compact room,1750,true,R07,Blk 1 Kallang Bahru,Condo room,PropertyGuru,Good city access
-L008,Kallang sports hub area room,1680,true,R08,Blk 8 Upper Boon Keng Road,HDB room,99.co,Convenient bus access
-L009,Novena area private room,2200,true,R09,308 Novena Rise,Private room,PropertyGuru,Premium central option
-L010,Jalan Besar starter room,1580,false,R10,Blk 1 Jalan Besar,Common room,99.co,Simple central listing
-L011,Bedok South aircon room,1420,true,R11,Blk 1 Bedok South Avenue 1,HDB room,PropertyGuru,Affordable east option
-L012,Bedok North family-friendly room,1480,false,R12,Blk 205 Bedok North Street 1,Shared room,99.co,Larger unit with fan only
-L013,Bedok Reservoir calm room,1600,true,R13,Blk 531 Bedok Reservoir Road,HDB room,PropertyGuru,Quiet neighborhood
-L014,Tampines town center room,1720,true,R14,Blk 101 Tampines Street 11,Condo room,99.co,Popular for east workers
-L015,Tampines East budget pick,1390,false,R15,Blk 201 Tampines Street 21,HDB room,PropertyGuru,Most affordable east listing
-L016,Tampines North newer room,1660,true,R16,Blk 401 Tampines Street 41,Common room,99.co,Newer BTO cluster
-L017,Pasir Ris breezy room,1520,true,R17,Blk 452 Pasir Ris Drive 6,HDB room,PropertyGuru,Good for Changi commute
-L018,Pasir Ris family condo room,1880,true,R18,Blk 521 Pasir Ris Street 52,Condo room,99.co,Close to mall
-L019,MacPherson connector room,1700,false,R19,Blk 1 Circuit Road,HDB room,PropertyGuru,Good interchange access
-L020,Marine Parade premium room,2150,true,R20,428 Marine Parade Road,Private room,99.co,East coast premium option
+L001,City-fringe private room in Bukit Merah,1950,true,R01,Blk 1 Jalan Bukit Merah,Private room,99.co,Student-friendly budget
+L002,Breezy singleroom in Tiong Bahru,1400,false,R02,Blk 123 Kim Tian Road,Singleroom,99.co,Affordable option
+L003,Quiet stay near private room in Queenstown,2700,true,R03,Blk 50 Strathmore Avenue,Private room,99.co,Convenient bus access
+L004,Central singleroom in Dawson,1550,true,R04,Blk 88 Tanglin Halt Road,Singleroom,PropertyGuru,Quiet neighborhood
+L005,Premium shared room in Toa Payoh,1300,false,R05,Blk 1 Lorong 7 Toa Payoh,Shared room,99.co,Quiet neighborhood
+L006,Premium hdb room in Toa Payoh East,1280,false,R06,Blk 190 Lorong 6 Toa Payoh,HDB room,PropertyGuru,Curated demo listing
+L007,Quiet stay near shared room in Kallang,1580,false,R07,Blk 1 Kempas Road,Shared room,99.co,Higher rent but newer estate
+L008,City-fringe shared room in Kallang,1080,true,R08,Blk 8 Boon Keng Road,Shared room,99.co,Near central amenities
+L009,City-fringe singleroom in Novena area,1120,false,R09,Blk 11 Jalan Tan Tock Seng,Singleroom,PropertyGuru,Higher rent but newer estate
+L010,Cozy condo room in Jalan Besar,1950,true,R10,Blk 1 Maude Road,Condo room,PropertyGuru,Convenient bus access
+L011,Cozy condo room in Bedok South,2600,true,R11,Blk 1 Bedok South Avenue 1,Condo room,99.co,Simple central listing
+L012,Quiet stay near shared room in Bedok North,1520,true,R12,Blk 205 Bedok North Street 1,Shared room,PropertyGuru,Simple central listing
+L013,Spacious hdb room in Bedok Reservoir,1400,true,R13,Blk 531 Bedok North Street 3,HDB room,99.co,Convenient bus access
+L014,Breezy condo room in Tampines,2200,true,R14,Blk 101 Simei Street 1,Condo room,PropertyGuru,Higher rent but newer estate
+L015,Budget condo room in Tampines East,2250,true,R15,Blk 201 Tampines Street 21,Condo room,99.co,Student-friendly budget
+L016,Central singleroom in Tampines North,1050,true,R16,Blk 401 Tampines Street 41,Singleroom,99.co,Convenient bus access
+L017,Breezy singleroom in Pasir Ris,1120,true,R17,Blk 452 Pasir Ris Drive 6,Singleroom,99.co,Premium central option
+L018,Quiet stay near shared room in Pasir Ris,1450,false,R18,Blk 521 Pasir Ris Street 52,Shared room,99.co,Walkable to town center
+L019,Premium common room in MacPherson,1580,true,R19,Blk 1 Eunos Crescent,Common room,99.co,Convenient bus access
+L020,Central singleroom in Marine Parade area,1300,false,R20,Blk 112 East Coast Road,Singleroom,99.co,Good city access
+L021,Cozy shared room in Woodlands,1720,true,R21,Blk 1 Marsiling Drive,Shared room,PropertyGuru,Convenient bus access
+L022,Cozy shared room in Woodlands South,1380,true,R22,Blk 101 Woodlands Street 13,Shared room,PropertyGuru,Curated demo listing
+L023,Cozy condo room in Woodlands East,2200,false,R23,Blk 301 Woodlands Street 31,Condo room,PropertyGuru,Walkable to town center
+L024,Spacious hdb room in Yishun,1200,true,R24,Blk 101 Yishun Avenue 5,HDB room,PropertyGuru,Convenient bus access
+L025,Studio-style private room in Yishun Ring,2400,true,R25,Blk 201 Yishun Street 21,Private room,PropertyGuru,Quiet neighborhood
+L026,Premium condo room in Yishun Ave,2200,true,R26,Blk 666 Yishun Avenue 4,Condo room,99.co,Good value option
+L027,Studio-style common room in Sembawang,1580,true,R27,Blk 501 Wellington Circle,Common room,99.co,Convenient bus access
+L028,Spacious hdb room in Sembawang Drive,1150,true,R28,Blk 401 Admiralty Link,HDB room,PropertyGuru,Curated demo listing
+L029,Quiet stay near shared room in Yio Chu Kang,1380,true,R29,Blk 633 Ang Mo Kio Avenue 6,Shared room,PropertyGuru,Higher rent but newer estate
+L030,Cozy common room in Woodlands,1620,true,R30,Blk 301 Woodlands Street 31,Common room,99.co,Quiet neighborhood
+L031,Central private room in Ang Mo Kio,1950,false,R31,Blk 501 Ang Mo Kio Avenue 5,Private room,99.co,Premium central option
+L032,Breezy private room in Ang Mo Kio Ave,1950,true,R32,Blk 101 Ang Mo Kio Avenue 3,Private room,PropertyGuru,Student-friendly budget
+L033,Quiet stay near common room in Hougang,1480,false,R33,Blk 1 Hougang Avenue 3,Common room,PropertyGuru,Simple central listing
+L034,Central condo room in Hougang Ave,2050,true,R34,Blk 201 Hougang Street 21,Condo room,PropertyGuru,Student-friendly budget
+L035,Breezy singleroom in Punggol,1450,false,R35,Blk 101 Punggol Field,Singleroom,99.co,Good value option
+L036,Quiet stay near private room in Punggol Field,3000,false,R36,Blk 201 Punggol Field,Private room,PropertyGuru,Simple central listing
+L037,City-fringe hdb room in Punggol Waterway,1750,false,R37,Blk 313A Sumang Link,HDB room,PropertyGuru,Simple central listing
+L038,Premium common room in Sengkang,1700,false,R38,Blk 101 Rivervale Walk,Common room,99.co,Higher rent but newer estate
+L039,City-fringe singleroom in Sengkang East,1100,true,R39,Blk 201 Sengkang East Road,Singleroom,PropertyGuru,Good value option
+L040,Budget hdb room in Serangoon,1720,true,R40,Blk 101 Serangoon North Avenue 1,HDB room,99.co,Convenient bus access
+L041,Budget condo room in Jurong East,2050,true,R41,Blk 101 Jurong East Street 13,Condo room,PropertyGuru,Near central amenities
+L042,Quiet stay near hdb room in Jurong East Ave,1100,true,R42,Blk 201 Jurong East Street 21,HDB room,PropertyGuru,Walkable to town center
+L043,City-fringe private room in Jurong West,2400,true,R43,Blk 210 Boon Lay Place,Private room,99.co,Good city access
+L044,Central private room in Jurong West Ave,2050,true,R44,Blk 201 Boon Lay Drive,Private room,PropertyGuru,Quiet neighborhood
+L045,Budget common room in Jurong West Central,1050,false,R45,Blk 501 Jurong West Street 51,Common room,99.co,Premium central option
+L046,Quiet stay near hdb room in Clementi Ave,1750,false,R46,Blk 324 Clementi Avenue 5,HDB room,PropertyGuru,Walkable to town center
+L047,Premium condo room in Clementi Ave,1950,true,R47,Blk 301 Clementi Avenue 4,Condo room,99.co,Premium central option
+L048,Central private room in Bukit Batok,2150,true,R48,Blk 101 Bukit Batok West Avenue 6,Private room,PropertyGuru,Good city access
+L049,Spacious private room in Bukit Batok East,1900,true,R49,Blk 201 Bukit Batok Street 21,Private room,PropertyGuru,Walkable to town center
+L050,Central private room in Choa Chu Kang,1850,true,R50,Blk 101 Teck Whye Lane,Private room,99.co,Convenient bus access
