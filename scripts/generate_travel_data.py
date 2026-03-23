@@ -18,7 +18,7 @@ RATE_LIMIT_DELAY = 0.2
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
 DEST_FILE = DATA_DIR / "Dst_List.csv"
-RENTAL_FILE = DATA_DIR / "Rental_List.csv"
+RENTAL_FILE = DATA_DIR / "origin_nodes.csv"
 OUTPUT_CSV = DATA_DIR / "transit_matrix.csv"
 last_request_time = 0.0
 
