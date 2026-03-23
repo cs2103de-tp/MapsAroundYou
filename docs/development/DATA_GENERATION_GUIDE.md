@@ -118,4 +118,4 @@ The script handles UTF-8 BOM encoding automatically using `encoding='utf-8-sig'`
 ## See Also
 
 - [API Schema Documentation](../api/mock-api.md) - Full schema details
-- [Build and Run Guide](./build-and-run.md) - How to run the CLI application
+- [Build and Run Guide](../ops/build-and-run.md) - How to run the CLI application
