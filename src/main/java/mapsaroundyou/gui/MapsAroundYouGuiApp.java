@@ -167,7 +167,8 @@ public final class MapsAroundYouGuiApp extends Application {
         airconCol.setMaxWidth(100);
 
         TableColumn<SearchRow, String> scoreCol = new TableColumn<>("Score");
-        scoreCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(String.format("%.3f", cell.getValue().getScore())));
+        scoreCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
+                String.format("%.3f", cell.getValue().getScore())));
         scoreCol.setMaxWidth(120);
 
         resultsTable.getColumns().add(titleCol);
