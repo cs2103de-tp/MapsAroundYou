@@ -1,13 +1,14 @@
 plugins {
     id 'application'
     id 'checkstyle'
+    id 'com.gradleup.shadow' version '8.3.8'
     id 'com.github.spotbugs' version '6.4.8'
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'mapsaroundyou'
-version = '0.1.0'
+version = '0.1.1'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -92,6 +93,13 @@ tasks.named('check') {
 }
 
 tasks.named('jar') {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier = 'all'
     manifest {
         attributes 'Main-Class': application.mainClass.get()
     }
