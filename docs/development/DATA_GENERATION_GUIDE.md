@@ -36,6 +36,7 @@ pip install requests
 
 - OneMap access if you want live address enrichment during generation
 - See [Build and Run Guide](../ops/build-and-run.md) for the broader local setup
+
 ### Step 1: Add Origins to `origin_nodes.csv`
 
 Open `src/main/resources/commute_data/origin_nodes.csv` and add new rows:
@@ -133,7 +134,6 @@ The script handles UTF-8 BOM encoding automatically using `encoding='utf-8-sig'`
 
 ## Key Design Principles
 
-- **No Rental_List2.csv at runtime** - The intermediate file from data generation is not used by the app
 - **Two-layer decoupling** - `origin_nodes.csv` (identity) stays separate from `listings.csv` (presentation)
 - **Repo-portable** - All paths are relative to the repository root
 - **Flat_ID alignment** - All three CSVs reference listings by their origin `Flat_ID` (or `originNodeId`)

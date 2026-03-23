@@ -18,7 +18,7 @@ RATE_LIMIT_DELAY = 0.2
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
 DEST_FILE = DATA_DIR / "Dst_List.csv"
-RENTAL_FILE = DATA_DIR / "origin_nodes.csv"
+ORIGIN_NODES_FILE = DATA_DIR / "origin_nodes.csv"
 OUTPUT_CSV = DATA_DIR / "transit_matrix.csv"
 last_request_time = 0.0
 
@@ -164,8 +164,10 @@ def generate_matrix():
             if coords:
                 dest_coords_map[dest_id] = coords
 
-    print(f"\nTranslating rental postal codes from {RENTAL_FILE} and calculating routes...")
-    with RENTAL_FILE.open(mode="r", encoding="utf-8") as rental_handle, OUTPUT_CSV.open(
+    print(
+        f"\nTranslating rental postal codes from {ORIGIN_NODES_FILE} and calculating routes..."
+    )
+    with ORIGIN_NODES_FILE.open(mode="r", encoding="utf-8") as rental_handle, OUTPUT_CSV.open(
         mode="w", newline="", encoding="utf-8"
     ) as output_handle:
         rental_reader = csv.DictReader(rental_handle)
