@@ -25,6 +25,17 @@ The application maintains a two-layer CSV data model:
 
 ## Adding New Listings
 
+### Prerequisites
+
+- Python 3 on `PATH`
+- `requests` installed locally:
+
+```bash
+pip install requests
+```
+
+- OneMap access if you want live address enrichment during generation
+- See [Build and Run Guide](../ops/build-and-run.md) for the broader local setup
 ### Step 1: Add Origins to `Rental_List.csv`
 
 Open `src/main/resources/commute_data/Rental_List.csv` and add new rows:

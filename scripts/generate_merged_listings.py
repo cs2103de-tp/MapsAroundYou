@@ -100,15 +100,26 @@ def get_real_address(postal_code, fallback_area, rng):
 
     try:
         response = requests.get(url, timeout=5)
-        if response.status_code == 200:
+        response.raise_for_status()
+        try:
             data = response.json()
-            if data["found"] > 0:
-                result = data["results"][0]
-                blk = result.get("BLK_NO", "")
-                road = result.get("ROAD_NAME", "")
-                if blk and blk != "NIL":
+        except ValueError:
+            data = None
+
+        if isinstance(data, dict):
+            found = data.get("found", 0) or 0
+            results = data.get("results") or []
+            if found and isinstance(results, list) and results:
+                result = results[0] or {}
+                blk = (result.get("BLK_NO") or "").strip()
+                road = (result.get("ROAD_NAME") or "").strip()
+                blk_valid = bool(blk) and blk.upper() != "NIL"
+                road_valid = bool(road) and road.upper() != "NIL"
+                if blk_valid and road_valid:
                     return f"Blk {blk} {road.title()}"
-                if road and road != "NIL":
+                if blk_valid:
+                    return f"Blk {blk}"
+                if road_valid:
                     return road.title()
     except requests.exceptions.RequestException:
         pass
