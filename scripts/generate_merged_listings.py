@@ -8,7 +8,7 @@ import requests
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
-DEFAULT_INPUT_CSV = DATA_DIR / "Rental_List.csv"
+DEFAULT_INPUT_CSV = DATA_DIR / "origin_nodes.csv"
 DEFAULT_OUTPUT_CSV = DATA_DIR / "listings.csv"
 DEFAULT_TARGET_COUNT = 180
 DEFAULT_SEED = 2103
@@ -186,7 +186,7 @@ def generate_merged_listings(
     """
     Generate app-facing listings from the covered origin-node set.
 
-    Each Rental_List row represents one origin location, not one housing unit.
+    Each origin_nodes.csv row represents one origin location, not one housing unit.
     Multiple listing rows may therefore share the same originNodeId.
     """
     rng = random.Random(seed)
@@ -238,14 +238,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description=(
-            "Generate app-facing listings.csv rows from Rental_List.csv. "
+            "Generate app-facing listings.csv rows from origin_nodes.csv. "
             "Defaults to 180 listings across the covered origin set."
         )
     )
     parser.add_argument(
         "--input",
         default=str(DEFAULT_INPUT_CSV),
-        help="Input rental CSV path (default: repo-relative Rental_List.csv).",
+        help="Input origin-node CSV path (default: repo-relative origin_nodes.csv).",
     )
     parser.add_argument(
         "--output",
