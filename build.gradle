@@ -3,6 +3,7 @@ plugins {
     id 'checkstyle'
     id 'com.github.spotbugs' version '6.4.8'
     id 'java'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'mapsaroundyou'
@@ -33,6 +34,24 @@ dependencies {
 
 application {
     mainClass = 'mapsaroundyou.cli.MapsAroundYouApp'
+}
+
+javafx {
+    version = '21.0.2'
+    modules = ['javafx.controls']
+}
+
+tasks.register('runGui', JavaExec) {
+    group = 'application'
+    description = 'Run the JavaFX GUI application.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'mapsaroundyou.gui.MapsAroundYouGuiApp'
+    // Custom JavaExec tasks do not get the JavaFX plugin's JVM wiring (that targets `run` only).
+    // Without module-path + add-modules, JavaFX fails at startup on a normal JDK.
+    jvmArgs = [
+        '--module-path', configurations.runtimeClasspath.asPath,
+        '--add-modules', 'javafx.controls'
+    ]
 }
 
 tasks.withType(JavaCompile).configureEach {
