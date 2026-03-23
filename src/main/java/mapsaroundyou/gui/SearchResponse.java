@@ -9,5 +9,8 @@ public record SearchResponse(
         DatasetMetadata datasetMetadata,
         List<SearchResult> results
 ) {
+    public SearchResponse {
+        results = List.copyOf(results);
+    }
 }
 
