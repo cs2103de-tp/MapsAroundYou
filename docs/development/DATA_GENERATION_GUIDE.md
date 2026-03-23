@@ -9,11 +9,13 @@ The application maintains a two-layer CSV data model:
 1. **`Rental_List.csv`** - Origin identity and commute reference
    - Source file that defines where rentals are located
    - Used as reference data for listings and transit matrix alignment
+   - Treat each row as one covered origin node, not one app listing row
    - Columns: `Flat_ID`, `Postal_Code`, `Region`, `Area_Name`
 
 2. **`listings.csv`** - App-facing listing data
    - Auto-generated from `Rental_List.csv` using the data generation script
    - Contains all fields needed by the CLI app for display and filtering
+   - Multiple listing rows may share the same `originNodeId`
    - Columns: `listingId`, `title`, `monthlyRent`, `hasAircon`, `originNodeId`, `address`, `roomType`, `sourcePlatform`, `notes`
 
 3. **`transit_matrix.csv`** - Commute lookup matrix
@@ -47,13 +49,17 @@ This will:
 - Read your newly added rows from `Rental_List.csv`
 - Fetch real addresses from OneMap API (based on postal codes)
 - Generate realistic rent prices based on room type
-- Create corresponding rows in `listings.csv`
+- Create multiple listing rows per covered origin node
+- Produce a stronger demo dataset of 180 app-facing listings by default
 
 **Optional arguments:**
 
 ```bash
 # Custom input/output paths
 python scripts/generate_merged_listings.py --input path/to/custom_rental.csv --output path/to/custom_listings.csv
+
+# Override the listing count or deterministic seed
+python scripts/generate_merged_listings.py --target-count 180 --seed 2103
 ```
 
 ### Step 3: Expand `transit_matrix.csv`
@@ -91,6 +97,12 @@ R05,D03,30,5,10,8,18,1.75,13,60,70
 - **Type:** Boolean CSV value (`true` / `false`)
 - **NOT a nested JSON field** (unlike earlier designs)
 - **Direct column in listings.csv** for simple filtering
+
+### One Origin, Multiple Units
+
+- `Rental_List.csv` tracks covered commute origins, not the final unit inventory
+- The generator can therefore emit multiple listings for the same `originNodeId`
+- This lets the demo app show richer filter results without regenerating the commute matrix
 
 ## Troubleshooting
 
