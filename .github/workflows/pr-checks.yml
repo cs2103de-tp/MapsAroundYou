@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-quality-gate:
-    name: PR Quality Gate
+  pr-build-gate-linux:
+    name: PR Build Gate (Linux)
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +30,79 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          architecture: x64
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build runnable JAR
+        run: ./gradlew --no-daemon clean shadowJar
+
+  pr-build-gate-macos:
+    name: PR Build Gate (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          architecture: x64
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build runnable JAR
+        run: ./gradlew --no-daemon clean shadowJar
+
+  pr-build-gate-windows:
+    name: PR Build Gate (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          architecture: x64
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build runnable JAR
+        run: .\gradlew.bat --no-daemon clean shadowJar
+
+  pr-quality-check:
+    name: PR Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          architecture: x64
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -47,3 +120,37 @@ jobs:
             build/reports/tests/test
             build/reports/checkstyle
             build/reports/spotbugs
+
+  pr-quality-gate:
+    name: PR Quality Gate
+    if: ${{ always() }}
+    needs:
+      - pr-build-gate-linux
+      - pr-build-gate-macos
+      - pr-build-gate-windows
+      - pr-quality-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify required PR checks
+        run: |
+          declare -A results=(
+            ["PR Build Gate (Linux)"]="${{ needs.pr-build-gate-linux.result }}"
+            ["PR Build Gate (macOS)"]="${{ needs.pr-build-gate-macos.result }}"
+            ["PR Build Gate (Windows)"]="${{ needs.pr-build-gate-windows.result }}"
+            ["PR Quality Check"]="${{ needs.pr-quality-check.result }}"
+          )
+
+          failures=0
+          for check_name in "${!results[@]}"; do
+            result="${results[$check_name]}"
+            echo "$check_name: $result"
+            if [ "$result" != "success" ]; then
+              failures=1
+            fi
+          done
+
+          if [ "$failures" -ne 0 ]; then
+            echo "One or more required PR checks failed."
+            exit 1
+          fi
