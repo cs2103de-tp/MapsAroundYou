@@ -14,9 +14,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-build-gate-linux:
-    name: PR Build Gate (Linux)
-    runs-on: ubuntu-latest
+  pr-build-gate:
+    name: ${{ matrix.check_name }}
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check_name: PR Build Gate (Linux)
+            runs_on: ubuntu-latest
+            command: ./gradlew --no-daemon clean shadowJar
+          - check_name: PR Build Gate (macOS)
+            runs_on: macos-latest
+            command: ./gradlew --no-daemon clean shadowJar
+          - check_name: PR Build Gate (Windows)
+            runs_on: windows-latest
+            command: .\gradlew.bat --no-daemon clean shadowJar
 
     steps:
       - name: Check out repository
@@ -36,55 +49,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Build runnable JAR
-        run: ./gradlew --no-daemon clean shadowJar
-
-  pr-build-gate-macos:
-    name: PR Build Gate (macOS)
-    runs-on: macos-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '21'
-          architecture: x64
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Build runnable JAR
-        run: ./gradlew --no-daemon clean shadowJar
-
-  pr-build-gate-windows:
-    name: PR Build Gate (Windows)
-    runs-on: windows-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '21'
-          architecture: x64
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
-
-      - name: Build runnable JAR
-        run: .\gradlew.bat --no-daemon clean shadowJar
+        run: ${{ matrix.command }}
 
   pr-quality-check:
     name: PR Quality Check
@@ -125,9 +90,7 @@ jobs:
     name: PR Quality Gate
     if: ${{ always() }}
     needs:
-      - pr-build-gate-linux
-      - pr-build-gate-macos
-      - pr-build-gate-windows
+      - pr-build-gate
       - pr-quality-check
     runs-on: ubuntu-latest
 
@@ -135,9 +98,7 @@ jobs:
       - name: Verify required PR checks
         run: |
           declare -A results=(
-            ["PR Build Gate (Linux)"]="${{ needs.pr-build-gate-linux.result }}"
-            ["PR Build Gate (macOS)"]="${{ needs.pr-build-gate-macos.result }}"
-            ["PR Build Gate (Windows)"]="${{ needs.pr-build-gate-windows.result }}"
+            ["PR Build Gate matrix"]="${{ needs.pr-build-gate.result }}"
             ["PR Quality Check"]="${{ needs.pr-quality-check.result }}"
           )
 
