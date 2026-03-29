@@ -14,8 +14,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-quality-gate:
-    name: PR Quality Gate
+  pr-build-gate:
+    name: ${{ matrix.check_name }}
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check_name: PR Build Gate (Linux)
+            runs_on: ubuntu-latest
+            command: ./gradlew --no-daemon clean shadowJar
+          - check_name: PR Build Gate (macOS)
+            runs_on: macos-latest
+            command: ./gradlew --no-daemon clean shadowJar
+          - check_name: PR Build Gate (Windows)
+            runs_on: windows-latest
+            command: .\gradlew.bat --no-daemon clean shadowJar
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          architecture: x64
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build runnable JAR
+        run: ${{ matrix.command }}
+
+  pr-quality-check:
+    name: PR Quality Check
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +67,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          architecture: x64
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -47,3 +85,33 @@ jobs:
             build/reports/tests/test
             build/reports/checkstyle
             build/reports/spotbugs
+
+  pr-quality-gate:
+    name: PR Quality Gate
+    if: ${{ always() }}
+    needs:
+      - pr-build-gate
+      - pr-quality-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify required PR checks
+        run: |
+          declare -A results=(
+            ["PR Build Gate matrix"]="${{ needs.pr-build-gate.result }}"
+            ["PR Quality Check"]="${{ needs.pr-quality-check.result }}"
+          )
+
+          failures=0
+          for check_name in "${!results[@]}"; do
+            result="${results[$check_name]}"
+            echo "$check_name: $result"
+            if [ "$result" != "success" ]; then
+              failures=1
+            fi
+          done
+
+          if [ "$failures" -ne 0 ]; then
+            echo "One or more required PR checks failed."
+            exit 1
+          fi
