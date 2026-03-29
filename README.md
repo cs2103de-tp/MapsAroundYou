@@ -49,6 +49,6 @@ See [docs/development/fork-workflow.md](docs/development/fork-workflow.md) for d
 
 ## Offline Data Generation
 
-Use the unified offline generator at `scripts/generate_merged_listings.py` to append data to `Rental_List.csv`, `listings.csv`, and `transit_matrix.csv` in one run (no API token required).
+Use the unified offline generator at `scripts/generate_merged_listings.py` to append data to `Rental_List.csv`, `listings.csv`, and `transit_matrix.csv` in one run (no API token required, uses distance-based estimation instead of live routing APIs so commute times are approximate).
 
 See [docs/development/DATA_GENERATION_GUIDE.md](docs/development/DATA_GENERATION_GUIDE.md) for random/manual location modes and usage examples.

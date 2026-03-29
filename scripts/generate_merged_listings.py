@@ -274,9 +274,18 @@ def estimate_transit_metrics(distance_km: float, rng: random.Random) -> dict[str
     # durations and fares in downstream calculations.
     effective_km = max(0.15, distance_km * 1.3)
 
-    walk_total = max(3, int(round((effective_km / 4.8) * 60)))
-    cycle_total = max(4, int(round((effective_km / 14.0) * 60 + rng.uniform(0, 3))))
-    drive_total = max(4, int(round((effective_km / 28.0) * 60 + rng.uniform(3, 8))))
+    # Singapore urban walking speed accounting for traffic signals and pedestrian infrastructure
+    WALKING_SPEED_KM_H = 4.8
+    # Average Singapore MRT/bus speed including stops and transfers
+    TRANSIT_SPEED_KM_H = 24.0
+    # Average cycling speed in Singapore
+    CYCLING_SPEED_KM_H = 14.0
+    # Average driving speed in Singapore
+    DRIVING_SPEED_KM_H = 28.0
+
+    walk_total = max(3, int(round((effective_km / WALKING_SPEED_KM_H) * 60)))
+    cycle_total = max(4, int(round((effective_km / CYCLING_SPEED_KM_H) * 60 + rng.uniform(0, 3))))
+    drive_total = max(4, int(round((effective_km / DRIVING_SPEED_KM_H) * 60 + rng.uniform(3, 8))))
 
     if effective_km <= 0.5:
         pt_walk = walk_total
@@ -416,12 +425,16 @@ def build_random_origins(
     Returns: list of OriginLocation records.
     """
     origins: list[OriginLocation] = []
+
+    # Reflects approximate Singapore private housing proportion in rental market
+    CONDO_PROBABILITY = 0.28
+
     for idx in range(count):
         area = rng.choice(AREA_CATALOG)
         flat_num = start_index + idx
         flat_id = f"R{flat_num:02d}"
         postal_code = build_postal_code(area["postal_prefix"], rng)
-        housing_hint = "Condo" if rng.random() < 0.28 else "HDB"
+        housing_hint = "Condo" if rng.random() < CONDO_PROBABILITY else "HDB"
         origins.append(
             OriginLocation(
                 flat_id=flat_id,
