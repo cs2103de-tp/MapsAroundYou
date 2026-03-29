@@ -71,6 +71,23 @@ TITLE_ADJECTIVES = [
 
 SOURCE_PLATFORMS = ["PropertyGuru", "99.co", "SRX", "PropertyLimBrothers"]
 
+# Rail share model for PT allocation:
+# - Base rail share starts at 25% for short-to-mid trips where buses still dominate first/last mile.
+# - Rail share ramps with distance because MRT/LRT usage grows on longer cross-town routes.
+# - Rail share is capped at 80% (0.25 + 0.55) to leave a realistic residual bus portion.
+RAIL_SHARE_BASE = 0.25
+RAIL_SHARE_DISTANCE_CAP = 0.55
+RAIL_SHARE_RAMP_DISTANCE_KM = 25.0
+
+# PT fare model for offline simulation:
+# - Base fare starts at 1.09 SGD for short transit trips.
+# - Base fare distance threshold is 3.2 km.
+# - Beyond that threshold, fare grows linearly at 0.045 SGD per km.
+# These values are simplified Singapore-style fare heuristics (not official fare tables).
+FARE_BASE_SGD = 1.09
+FARE_BASE_DISTANCE_KM = 3.2
+FARE_INCREMENT_PER_KM_SGD = 0.045
+
 LISTING_PROFILES = [
     {
         "housing": "HDB",
@@ -87,6 +104,29 @@ LISTING_PROFILES = [
         "notes": ["Premium central option", "Newer estate", "Good city access"],
     },
 ]
+
+# Sector-specific suffix ranges. Values represent the last 4 digits in SSxxxx
+# and ensure generated postcodes follow sector trends like 520001-529999.
+POSTAL_SUFFIX_RANGE_BY_PREFIX = {
+    "12": (1, 9999),
+    "15": (1, 9999),
+    "31": (1, 9999),
+    "33": (1, 9999),
+    "46": (1, 9999),
+    "51": (1, 9999),
+    "52": (1, 9999),
+    "53": (1, 9999),
+    "54": (1, 9999),
+    "56": (1, 9999),
+    "60": (1, 9999),
+    "64": (1, 9999),
+    "65": (1, 9999),
+    "68": (1, 9999),
+    "73": (1, 9999),
+    "75": (1, 9999),
+    "76": (1, 9999),
+    "82": (1, 9999),
+}
 
 AREA_CATALOG = [
     {"region": "Central", "area": "Bukit Merah", "street": "Jalan Bukit Merah", "postal_prefix": "15"},
@@ -228,6 +268,10 @@ def estimate_transit_metrics(distance_km: float, rng: random.Random) -> dict[str
     Input: straight-line distance in kilometers and random generator.
     Returns: transit and modal durations, plus estimated fare.
     """
+    # Use a 1.3x multiplier to approximate real-world network distance (indirect routes,
+    # turns, and access paths) from straight-line distance, and clamp to a minimum of
+    # 0.15 km so that extremely short or co-located trips still produce non-zero
+    # durations and fares in downstream calculations.
     effective_km = max(0.15, distance_km * 1.3)
 
     walk_total = max(3, int(round((effective_km / 4.8) * 60)))
@@ -249,7 +293,10 @@ def estimate_transit_metrics(distance_km: float, rng: random.Random) -> dict[str
     else:
         pt_walk = max(6, min(20, int(round((effective_km / 4.8) * 60 * 0.35)) + rng.randint(2, 6)))
         pt_transit = max(8, int(round((effective_km / 24.0) * 60)) + rng.randint(4, 10))
-        rail_share = 0.25 + min(0.55, effective_km / 25.0)
+        rail_share = RAIL_SHARE_BASE + min(
+            RAIL_SHARE_DISTANCE_CAP,
+            effective_km / RAIL_SHARE_RAMP_DISTANCE_KM,
+        )
         pt_rail = int(round(pt_transit * rail_share))
         pt_bus = max(0, pt_transit - pt_rail)
         pt_total = pt_walk + pt_transit + rng.randint(4, 10)
@@ -276,9 +323,13 @@ def estimate_fare(distance_km: float, pt_transit: int) -> float:
     """
     if pt_transit <= 0:
         return 0.0
-    if distance_km <= 3.2:
-        return 1.09
-    return round(1.09 + (distance_km - 3.2) * 0.045, 2)
+    if distance_km <= FARE_BASE_DISTANCE_KM:
+        return FARE_BASE_SGD
+    return round(
+        FARE_BASE_SGD
+        + (distance_km - FARE_BASE_DISTANCE_KM) * FARE_INCREMENT_PER_KM_SGD,
+        2,
+    )
 
 
 def ensure_file_has_header(file_path: Path, headers: list[str]) -> None:
@@ -345,8 +396,13 @@ def build_postal_code(prefix: str, rng: random.Random) -> str:
     Input: 2-digit postal sector prefix and random generator.
     Returns: 6-digit postal code string.
     """
-    suffix = rng.randint(1, 9999)
-    return f"{prefix}{suffix:04d}"
+    normalized_prefix = prefix.strip().zfill(2)[:2]
+    suffix_start, suffix_end = POSTAL_SUFFIX_RANGE_BY_PREFIX.get(
+        normalized_prefix,
+        (1, 9999),
+    )
+    suffix = rng.randint(suffix_start, suffix_end)
+    return f"{normalized_prefix}{suffix:04d}"
 
 
 def build_random_origins(
@@ -403,11 +459,9 @@ def prompt_manual_origins(start_index: int) -> list[OriginLocation]:
         postal_code = input("Postal_Code (6 digits): ").strip()
         while not (postal_code.isdigit() and len(postal_code) == 6):
             postal_code = input("Postal_Code must be 6 digits. Re-enter: ").strip()
-        housing = input("Housing hint [HDB/Condo] (default HDB): ").strip().title() or "HDB"
-        if housing not in {"Hdb", "Condo", "HDB"}:
-            housing = "HDB"
-        if housing == "Hdb":
-            housing = "HDB"
+        raw_housing = input("Housing hint [HDB/Condo] (default HDB): ")
+        housing_normalized = raw_housing.strip().upper()
+        housing = housing_normalized if housing_normalized in {"HDB", "CONDO"} else "HDB"
 
         origins.append(
             OriginLocation(

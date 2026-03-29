@@ -29,7 +29,7 @@ The generator appends rows to all three files in one run.
 ### Prerequisites
 
 - Python 3 on `PATH`
-- No API token is required for transit generation
+- No API token is required for transit generation; transit times are estimated from distance-based heuristics (not actual routing data) and may differ from real-world commute times, representing a data quality trade-off versus the previous OneMap API integration.
 - See [Build and Run Guide](../ops/build-and-run.md) for the broader local setup
 
 ### Step 1: Choose Random or Manual Origins
