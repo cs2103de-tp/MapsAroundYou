@@ -179,3 +179,33 @@ L177,Budget condo room in Bukit Batok East,2240,true,R49,"Blk 201 Bukit Batok St
 L178,Spacious singleroom in Choa Chu Kang,1390,true,R50,"Blk 101 Teck Whye Lane, #03-04",Singleroom,SRX,Student-friendly budget
 L179,Modern private room in Choa Chu Kang,1450,true,R50,"Blk 101 Teck Whye Lane, #04-07",Private room,99.co,Walkable to town center
 L180,Studio-style condo room in Choa Chu Kang,1960,true,R50,"Blk 101 Teck Whye Lane, #05-10",Condo room,99.co,Higher rent but newer estate
+L181,Breezy singleroom in Kallang,1290,true,R51,"Blk 478 Boon Keng Road, #18-35",Singleroom,PropertyLimBrothers,Student-friendly budget
+L182,City-fringe hdb room in Kallang,900,true,R51,"Blk 478 Boon Keng Road, #25-27",HDB room,SRX,Affordable option
+L183,Spacious shared room in Kallang,1350,false,R51,"Blk 478 Boon Keng Road, #17-37",Shared room,PropertyGuru,Practical commute
+L184,Breezy hdb room in Jurong East,1300,false,R52,"Blk 422 Jurong East Street 13, #25-40",HDB room,PropertyGuru,Affordable option
+L185,Breezy singleroom in Jurong East,1270,true,R52,"Blk 422 Jurong East Street 13, #23-30",Singleroom,PropertyLimBrothers,Practical commute
+L186,Quiet shared room in Jurong East,1270,true,R52,"Blk 422 Jurong East Street 13, #13-14",Shared room,99.co,Practical commute
+L187,Well-connected private room in Jurong East,2200,true,R53,"Blk 978 Jurong East Street 13, #11-28",Private room,SRX,Premium central option
+L188,Quiet private room in Jurong East,1770,true,R53,"Blk 978 Jurong East Street 13, #14-31",Private room,99.co,Premium central option
+L189,City-fringe condo room in Jurong East,2450,true,R53,"Blk 978 Jurong East Street 13, #05-33",Condo room,PropertyLimBrothers,Newer estate
+L190,Central shared room in Clementi,1440,true,R54,"Blk 516 Clementi Avenue 5, #17-02",Shared room,99.co,Affordable option
+L191,City-fringe singleroom in Clementi,1320,true,R54,"Blk 516 Clementi Avenue 5, #20-22",Singleroom,PropertyLimBrothers,Practical commute
+L192,Premium common room in Clementi,1600,true,R54,"Blk 516 Clementi Avenue 5, #12-40",Common room,PropertyGuru,Affordable option
+L193,Spacious condo room in Tampines,2230,true,R55,"Blk 797 Tampines Street 21, #09-22",Condo room,PropertyLimBrothers,Good city access
+L194,Quiet private room in Tampines,2400,true,R55,"Blk 797 Tampines Street 21, #12-17",Private room,PropertyGuru,Good city access
+L195,Quiet condo room in Tampines,1690,false,R55,"Blk 797 Tampines Street 21, #14-38",Condo room,99.co,Newer estate
+L196,Breezy singleroom in Kallang,1290,true,R56,"Blk 478 Boon Keng Road, #18-35",Singleroom,PropertyLimBrothers,Student-friendly budget
+L197,City-fringe hdb room in Kallang,900,true,R56,"Blk 478 Boon Keng Road, #25-27",HDB room,SRX,Affordable option
+L198,Spacious shared room in Kallang,1350,false,R56,"Blk 478 Boon Keng Road, #17-37",Shared room,PropertyGuru,Practical commute
+L199,Breezy hdb room in Jurong East,1300,false,R57,"Blk 422 Jurong East Street 13, #25-40",HDB room,PropertyGuru,Affordable option
+L200,Breezy singleroom in Jurong East,1270,true,R57,"Blk 422 Jurong East Street 13, #23-30",Singleroom,PropertyLimBrothers,Practical commute
+L201,Quiet shared room in Jurong East,1270,true,R57,"Blk 422 Jurong East Street 13, #13-14",Shared room,99.co,Practical commute
+L202,Well-connected private room in Jurong East,2200,true,R58,"Blk 978 Jurong East Street 13, #11-28",Private room,SRX,Premium central option
+L203,Quiet private room in Jurong East,1770,true,R58,"Blk 978 Jurong East Street 13, #14-31",Private room,99.co,Premium central option
+L204,City-fringe condo room in Jurong East,2450,true,R58,"Blk 978 Jurong East Street 13, #05-33",Condo room,PropertyLimBrothers,Newer estate
+L205,Central shared room in Clementi,1440,true,R59,"Blk 516 Clementi Avenue 5, #17-02",Shared room,99.co,Affordable option
+L206,City-fringe singleroom in Clementi,1320,true,R59,"Blk 516 Clementi Avenue 5, #20-22",Singleroom,PropertyLimBrothers,Practical commute
+L207,Premium common room in Clementi,1600,true,R59,"Blk 516 Clementi Avenue 5, #12-40",Common room,PropertyGuru,Affordable option
+L208,Spacious condo room in Tampines,2230,true,R60,"Blk 797 Tampines Street 21, #09-22",Condo room,PropertyLimBrothers,Good city access
+L209,Quiet private room in Tampines,2400,true,R60,"Blk 797 Tampines Street 21, #12-17",Private room,PropertyGuru,Good city access
+L210,Quiet condo room in Tampines,1690,false,R60,"Blk 797 Tampines Street 21, #14-38",Condo room,99.co,Newer estate

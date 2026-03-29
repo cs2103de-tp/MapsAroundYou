@@ -7,85 +7,59 @@ This guide explains how to add new rental listings to MapsAroundYou using the da
 The application maintains a two-layer CSV data model:
 
 1. **`Rental_List.csv`** - Origin identity and commute reference
-   - Source file that defines where rentals are located
+   - Source file that defines covered rental origin locations
    - Used as reference data for listings and transit matrix alignment
    - Treat each row as one covered origin node, not one app listing row
    - Columns: `Flat_ID`, `Postal_Code`, `Region`, `Area_Name`
 
 2. **`listings.csv`** - App-facing listing data
-   - Auto-generated from `Rental_List.csv` using the data generation script
-   - Contains all fields needed by the CLI app for display and filtering
+   - Auto-generated for each origin by the unified script
    - Multiple listing rows may share the same `originNodeId`
    - Columns: `listingId`, `title`, `monthlyRent`, `hasAircon`, `originNodeId`, `address`, `roomType`, `sourcePlatform`, `notes`
 
 3. **`transit_matrix.csv`** - Commute lookup matrix
-   - Pre-computed travel times from each origin to destinations
+   - Auto-generated offline from postal-code distance heuristics (no API)
    - Aligned with `Rental_List.csv` via `flat_id` foreign key
-   - Columns: `flat_id`, `destination_id`, `pt_total`, `pt_walk`, `pt_bus`, ... (and other transit metrics)
+   - Columns: `flat_id`, `destination_id`, `pt_total`, `pt_walk`, `pt_bus`, `pt_rail`, `pt_transit`, `pt_fare`, `drive_total`, `cycle_total`, `walk_total`
+
+The generator appends rows to all three files in one run.
 
 ## Adding New Listings
 
 ### Prerequisites
 
 - Python 3 on `PATH`
-- `requests` installed locally:
-
-```bash
-pip install requests
-```
-
-- OneMap access if you want live address enrichment during generation
+- No API token is required for transit generation; transit times are estimated from distance-based heuristics (not actual routing data) and may differ from real-world commute times, representing a data quality trade-off versus the previous OneMap API integration.
 - See [Build and Run Guide](../ops/build-and-run.md) for the broader local setup
-### Step 1: Add Origins to `Rental_List.csv`
 
-Open `src/main/resources/commute_data/Rental_List.csv` and add new rows:
+### Step 1: Choose Random or Manual Origins
 
-```csv
-Flat_ID,Postal_Code,Region,Area_Name
-R05,200150,East,Bedok / Near Bedok MRT
-R06,200160,East,Bedok / Opposite Shopping Mall
-```
-
-**Important:** The `Flat_ID` will become the `originNodeId` in `listings.csv`.
-
-### Step 2: Generate App-Facing Listings
-
-Run the data generation script from the workspace root:
+Run from repository root:
 
 ```bash
-python scripts/generate_merged_listings.py
+python scripts/generate_merged_listings.py --location-mode random --new-origin-count 5 --listings-per-origin 3
 ```
 
-This will:
-- Read your newly added rows from `Rental_List.csv`
-- Fetch real addresses from OneMap API (based on postal codes)
-- Generate realistic rent prices based on room type
-- Create multiple listing rows per covered origin node
-- Produce a stronger demo dataset of 180 app-facing listings by default
-
-**Optional arguments:**
+or choose manual input mode:
 
 ```bash
-# Custom input/output paths
-python scripts/generate_merged_listings.py --input path/to/custom_rental.csv --output path/to/custom_listings.csv
-
-# Override the listing count or deterministic seed
-python scripts/generate_merged_listings.py --target-count 180 --seed 2103
+python scripts/generate_merged_listings.py --location-mode manual --listings-per-origin 3
 ```
 
-### Step 3: Expand `transit_matrix.csv`
+In manual mode, the script prompts for region, area, street name, postal code, and housing hint (HDB/Condo).
 
-For each new `Flat_ID` added, you must add corresponding rows to `transit_matrix.csv`:
+### Step 2: Generate App-Facing Listings and Transit Rows
 
-```csv
-flat_id,destination_id,pt_total,pt_walk,pt_bus,pt_rail,pt_transit,pt_fare,drive_total,cycle_total,walk_total
-R05,D01,35,8,20,0,20,1.80,15,50,75
-R05,D02,60,15,18,20,38,2.40,30,160,220
-R05,D03,30,5,10,8,18,1.75,13,60,70
-...
-```
+One unified run will:
+- Append new origins to `Rental_List.csv`
+- Append new listing rows to `listings.csv`
+- Append new commute rows to `transit_matrix.csv` for each destination in `Dst_List.csv`
 
-**Important:** The `flat_id` values in `transit_matrix.csv` MUST match the `Flat_ID` values in `Rental_List.csv`.
+### Step 3: Verify Flat ID Alignment
+
+After generation, verify the new `Flat_ID` values appear consistently in all three files.
+
+**Important:** `Flat_ID` in `Rental_List.csv`, `originNodeId` in `listings.csv`, and `flat_id` in `transit_matrix.csv` must stay aligned.
 
 ## Data Format Details
 
@@ -96,47 +70,72 @@ R05,D03,30,5,10,8,18,1.75,13,60,70
 | `Flat_ID` | → | `originNodeId` |
 | (generated) | → | `listingId` (L001, L002, ...) |
 | (generated) | → | `title` (descriptive, auto-generated) |
-| `Postal_Code` | → | `address` (fetched from OneMap API) |
-| (generated) | → | `monthlyRent` (random, price-bracket appropriate) |
-| (generated) | → | `hasAircon` (boolean: 75% true, 25% false) |
-| (generated) | → | `roomType` (e.g., "Condo room", "HDB room") |
-| (generated) | → | `sourcePlatform` ("PropertyGuru" or "99.co") |
-| (generated) | → | `notes` (e.g., "Curated demo listing") |
+| (generated) | → | `monthlyRent` (random, profile-based) |
+| (generated) | → | `hasAircon` (`true` or `false`) |
+| (generated) | → | `roomType` (for example, "Condo room", "HDB room") |
+| (generated) | → | `sourcePlatform` (for example, "PropertyGuru", "99.co") |
+| (generated) | → | `notes` (generated listing note) |
+| (generated from street + unit) | → | `address` |
 
 ### hasAircon Field
 
 - **Type:** Boolean CSV value (`true` / `false`)
-- **NOT a nested JSON field** (unlike earlier designs)
-- **Direct column in listings.csv** for simple filtering
+- **NOT a nested JSON field**
+- **Direct column in `listings.csv`** for filtering
 
 ### One Origin, Multiple Units
 
-- `Rental_List.csv` tracks covered commute origins, not the final unit inventory
-- The generator can therefore emit multiple listings for the same `originNodeId`
-- This lets the demo app show richer filter results without regenerating the commute matrix
+- `Rental_List.csv` tracks commute origins, not one row per final listing unit
+- The generator can emit multiple listings for each `originNodeId`
+- Transit rows are generated per origin-destination pair, not per listing row
+
+## Transit Data Logic (No API)
+
+- Distance is computed from postal-code-derived coordinates using the Haversine formula
+- Route distance is estimated from straight-line distance with a multiplier
+- Walk/cycle/drive/PT durations are generated from speed heuristics and overheads
+- Very short distances are constrained to avoid unrealistic long transit legs
+- PT fare is estimated from distance brackets
+
+## Optional Arguments
+
+```bash
+# Use random Singapore-like locations
+python scripts/generate_merged_listings.py --location-mode random --new-origin-count 8 --listings-per-origin 4 --seed 2103
+
+# Prompt for specific user-provided locations
+python scripts/generate_merged_listings.py --location-mode manual --listings-per-origin 3 --seed 2103
+```
+
+## Backward Compatibility
+
+`scripts/generate_travel_data.py` remains available as a wrapper and forwards to `scripts/generate_merged_listings.py`.
 
 ## Troubleshooting
 
-### API Rate Limiting
-If you see timeout errors from OneMap API:
-- The script includes a polite 0.2s delay between requests
-- Consider running in batches (add 10-20 listings at a time)
+### ID Issues
+If IDs look wrong:
+- Ensure existing values in CSVs follow `R###` and `L###` style formats
+- The script increments from the highest existing `Flat_ID` and `listingId`
 
-### Address Not Found
-Some postal codes may not be found in OneMap. The script falls back to:
-```
-Blk [random 1-200] [Area_Name] Road
-```
+### Manual Input Validation
+If manual mode rejects a postal code:
+- Ensure `Postal_Code` is exactly 6 digits
+
+### Transit Plausibility
+If commute times appear suspicious:
+- Re-run with a fixed `--seed` for reproducible comparison
+- Check that postal codes are realistic for the intended region
 
 ### CSV Encoding Issues
-The script handles UTF-8 BOM encoding automatically using `encoding='utf-8-sig'`.
+The script reads UTF-8 BOM safely (`utf-8-sig`) and writes UTF-8.
 
 ## Key Design Principles
 
-- **No Rental_List2.csv at runtime** - The intermediate file from data generation is not used by the app
-- **Two-layer decoupling** - `Rental_List.csv` (identity) stays separate from `listings.csv` (presentation)
-- **Repo-portable** - All paths are relative to the repository root
-- **Flat_ID alignment** - All three CSVs reference listings by their origin `Flat_ID` (or `originNodeId`)
+- **Unified append flow** - One command updates all 3 runtime CSVs
+- **No transit API dependency** - Commute generation is offline
+- **Repo-portable paths** - Uses repository-relative file locations
+- **Flat_ID alignment** - IDs stay consistent across rental, listings, and transit files
 
 ## See Also
 
