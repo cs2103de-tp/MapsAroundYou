@@ -7,16 +7,19 @@
 - [x] Tag and release `v0.1` artifacts
 
 ## Week 9 — v0.2 (First Increment)
-- [ ] US1: Destination input panel + validation against supported destination list
-- [ ] US2: Rent filter against curated housing listings dataset
+- [x] US1: Destination input panel + validation against supported destination list
+- [x] US2: Rent filter against curated housing listings dataset
 - [ ] Tag and release `v0.2` artifacts
+- [x] GUI started
 
 ## Week 10 — v0.3 (MVP)
-- [ ] US3: Commute time cap via local travel-time matrix lookup
-- [ ] US4 + US5: Air-con toggle + results display panel (top 10 listings)
+- [x] US3: Commute time cap via local travel-time matrix lookup
+- [x] US4 + US5: Air-con toggle + results display panel (top 10 listings)
 - [ ] Tag and release `v0.3` artifacts
+- [x] GUI finishing
 
 ## Week 11 — v0.4 (Alpha)
-- [ ] US6 + US7: Walk-dominant route filter + transit/walking breakdown in output
+- [ ] US6 + US7: Walk-dominant route filter + transit/walking breakdown in output (Features in 'Github Issues')
+- [ ] UX Issues as flagged on Github
 - [ ] Write and run test cases
 - [ ] Tag and release `v0.4` artifacts
