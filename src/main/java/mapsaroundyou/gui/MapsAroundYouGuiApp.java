@@ -27,7 +27,6 @@ import javafx.stage.Stage;
 import mapsaroundyou.app.ApplicationFactory;
 import mapsaroundyou.common.DataLoadException;
 import mapsaroundyou.common.InvalidInputException;
-import mapsaroundyou.common.ListingNotFoundException;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
@@ -331,7 +330,7 @@ public final class MapsAroundYouGuiApp extends Application {
         ListingDetails details;
         try {
             details = searchService.getListingDetails(row.getListingId());
-        } catch (ListingNotFoundException | InvalidInputException | RuntimeException exception) {
+        } catch (RuntimeException exception) {
             setStatus("Failed to load details: " + GuiErrorTranslator.toUserMessage(exception));
             return;
         }
