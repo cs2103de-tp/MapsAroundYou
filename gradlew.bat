@@ -36,6 +36,9 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
+@rem On Windows ARM64, JavaFX requires an x64 JDK in this project setup.
+if /I "%PROCESSOR_ARCHITECTURE%"=="ARM64" call :useX64JavaOnArm64
+
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
 
@@ -64,6 +67,20 @@ echo Please set the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
 
 goto fail
+
+:useX64JavaOnArm64
+if defined JAVA_HOME (
+	if /I not "%JAVA_HOME:x64=%"=="%JAVA_HOME%" goto :eof
+)
+
+set "X64_JAVA_HOME="
+for /d %%D in ("%ProgramFiles%\Microsoft\jdk-*-x64") do set "X64_JAVA_HOME=%%~fD"
+if not defined X64_JAVA_HOME goto :eof
+if not exist "%X64_JAVA_HOME%\bin\java.exe" goto :eof
+
+set "JAVA_HOME=%X64_JAVA_HOME%"
+set "PATH=%JAVA_HOME%\bin;%PATH%"
+goto :eof
 
 :execute
 @rem Setup the command line
