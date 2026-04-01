@@ -1,7 +1,6 @@
 package mapsaroundyou.gui;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
@@ -250,23 +249,25 @@ public final class MapsAroundYouGuiApp extends Application {
     private void loadInitialData() {
         setBusy(true, "Loading dataset...");
 
-        Task<Void> initTask = new Task<>() {
+        Task<InitialData> initTask = new Task<>() {
             @Override
-            protected Void call() {
-                List<Destination> destinations = searchService.getSupportedDestinations();
-                DatasetMetadata metadata = searchService.getDatasetMetadata();
-                Platform.runLater(() -> {
-                    destinationComboBox.setItems(FXCollections.observableArrayList(destinations));
-                    if (!destinations.isEmpty()) {
-                        destinationComboBox.getSelectionModel().select(0);
-                    }
-                    datasetLabel.setText(GuiTextFormatter.formatDatasetMetadata(metadata));
-                });
-                return null;
+            protected InitialData call() {
+                return new InitialData(
+                        searchService.getSupportedDestinations(),
+                        searchService.getDatasetMetadata()
+                );
             }
         };
 
-        initTask.setOnSucceeded(e -> setBusy(false, "Ready."));
+        initTask.setOnSucceeded(e -> {
+            InitialData initialData = initTask.getValue();
+            destinationComboBox.setItems(FXCollections.observableArrayList(initialData.destinations()));
+            if (!initialData.destinations().isEmpty()) {
+                destinationComboBox.getSelectionModel().select(0);
+            }
+            datasetLabel.setText(GuiTextFormatter.formatDatasetMetadata(initialData.metadata()));
+            setBusy(false, "Ready.");
+        });
         initTask.setOnFailed(e -> {
             setBusy(false, "Failed to load dataset: " + GuiErrorTranslator.toUserMessage(initTask.getException()));
         });
@@ -330,10 +331,7 @@ public final class MapsAroundYouGuiApp extends Application {
         ListingDetails details;
         try {
             details = searchService.getListingDetails(row.getListingId());
-        } catch (ListingNotFoundException | InvalidInputException exception) {
-            setStatus("Failed to load details: " + GuiErrorTranslator.toUserMessage(exception));
-            return;
-        } catch (RuntimeException exception) {
+        } catch (ListingNotFoundException | InvalidInputException | RuntimeException exception) {
             setStatus("Failed to load details: " + GuiErrorTranslator.toUserMessage(exception));
             return;
         }
@@ -374,6 +372,9 @@ public final class MapsAroundYouGuiApp extends Application {
 
     private void setStatus(String message) {
         statusLabel.setText(message == null || message.isBlank() ? " " : message);
+    }
+
+    private record InitialData(List<Destination> destinations, DatasetMetadata metadata) {
     }
 
     private static void showFatalStartupError(Stage stage, String message) {
