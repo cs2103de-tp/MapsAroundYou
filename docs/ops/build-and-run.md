@@ -1,12 +1,12 @@
 # Build and Run Guide
 
-## Current App Entry Point
+## Current App Entry Points
 
-The Week 8 scaffold ships with a Gradle-based Java CLI. No global Gradle installation is required because the repository includes the Gradle wrapper.
+The project ships with Gradle-based GUI and CLI entrypoints. No global Gradle installation is required because the repository includes the Gradle wrapper.
 
 ### Requirements
 
-- Java 21 or newer available through `JAVA_HOME` or `PATH`
+- Java 21 or newer (x86_64/AMD64) available through `JAVA_HOME` or `PATH`
 
 ### Build and Test
 
@@ -15,6 +15,14 @@ From the repository root:
 ```powershell
 .\gradlew test
 ```
+
+### Run the JavaFX GUI
+
+```powershell
+.\gradlew runGui
+```
+
+Use this entrypoint for the current desktop user flow.
 
 ### Run the Interactive CLI
 

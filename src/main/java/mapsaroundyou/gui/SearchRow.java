@@ -32,7 +32,7 @@ public final class SearchRow {
         return listing().monthlyRent();
     }
 
-    public boolean isHasAircon() {
+    public boolean hasAircon() {
         return listing().hasAircon();
     }
 
