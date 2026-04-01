@@ -37,7 +37,11 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem On Windows ARM64, JavaFX requires an x64 JDK in this project setup.
+@rem Check both variables: PROCESSOR_ARCHITECTURE is ARM64 from a native
+@rem ARM64 process, but from x64-emulated shells (e.g. Git Bash) it reports
+@rem AMD64 while PROCESSOR_ARCHITEW6432 reveals the true architecture.
 if /I "%PROCESSOR_ARCHITECTURE%"=="ARM64" call :useX64JavaOnArm64
+if /I "%PROCESSOR_ARCHITEW6432%"=="ARM64" call :useX64JavaOnArm64
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
@@ -74,10 +78,19 @@ if defined JAVA_HOME (
 )
 
 set "X64_JAVA_HOME="
+@rem Search common JDK install locations for an x64 build.
 for /d %%D in ("%ProgramFiles%\Microsoft\jdk-*-x64") do set "X64_JAVA_HOME=%%~fD"
-if not defined X64_JAVA_HOME goto :eof
-if not exist "%X64_JAVA_HOME%\bin\java.exe" goto :eof
+if defined X64_JAVA_HOME if exist "%X64_JAVA_HOME%\bin\java.exe" goto setX64
+for /d %%D in ("%ProgramFiles%\Eclipse Adoptium\jdk-*-x64") do set "X64_JAVA_HOME=%%~fD"
+if defined X64_JAVA_HOME if exist "%X64_JAVA_HOME%\bin\java.exe" goto setX64
+for /d %%D in ("%ProgramFiles%\Java\jdk-*-x64") do set "X64_JAVA_HOME=%%~fD"
+if defined X64_JAVA_HOME if exist "%X64_JAVA_HOME%\bin\java.exe" goto setX64
+@rem Also search Program Files (x86) in case an x64 JDK was installed there.
+for /d %%D in ("%ProgramFiles(x86)%\Microsoft\jdk-*-x64") do set "X64_JAVA_HOME=%%~fD"
+if defined X64_JAVA_HOME if exist "%X64_JAVA_HOME%\bin\java.exe" goto setX64
+goto :eof
 
+:setX64
 set "JAVA_HOME=%X64_JAVA_HOME%"
 set "PATH=%JAVA_HOME%\bin;%PATH%"
 goto :eof
