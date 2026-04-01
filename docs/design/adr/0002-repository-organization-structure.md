@@ -40,6 +40,9 @@ The organization's `main` branch has the following protection rules:
 
 - **Require pull request**: All changes to `main` must go through a pull request (enforced)
 - **Required status check**: `PR Quality Gate` must pass before merge
+- **PR gate composition**: `PR Quality Gate` aggregates
+  `PR Quality Check` plus `PR Build Gate (Linux)`,
+  `PR Build Gate (macOS)`, and `PR Build Gate (Windows)`
 - **Approving reviews**: At least 1 reviewer is recommended but not enforced (required approving reviews = 0)
 - **Include administrators**: Protection rules apply to admins (no bypass)
 - **Dismiss stale reviews**: When new commits are pushed
@@ -66,7 +69,10 @@ Personal forks have **no branch protection rules**, allowing direct pushes for d
 5. **Make changes and commit**: Follow commit conventions
 6. **Push to your fork**: Push your branch to your personal fork
 7. **Create PR**: Open a pull request from your fork to the organization
-8. **Review**: Wait for the required `PR Quality Gate` check to pass and preferably at least 1 reviewer approval
+8. **Review**: Wait for the required `PR Quality Gate` check to pass and
+   preferably at least 1 reviewer approval.
+   `PR Quality Gate` aggregates `PR Quality Check` and the Linux, macOS,
+   and Windows runnable-JAR build gates.
 9. **Merge**: After approval, the PR will be merged to organization's main
 
 ### Syncing with Upstream

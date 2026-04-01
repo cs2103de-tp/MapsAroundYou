@@ -7,7 +7,7 @@ import mapsaroundyou.model.TransportMode;
  */
 public final class AppConfig {
     public static final String DESTINATIONS_RESOURCE = "commute_data/Dst_List.csv";
-    public static final String ORIGIN_NODES_RESOURCE = "commute_data/Rental_List.csv";
+    public static final String ORIGIN_NODES_RESOURCE = "commute_data/origin_nodes.csv";
     public static final String TRAVEL_TIMES_RESOURCE = "commute_data/transit_matrix.csv";
     public static final String LISTINGS_RESOURCE = "commute_data/listings.csv";
     public static final String DATASET_METADATA_RESOURCE = "commute_data/dataset-metadata.properties";
