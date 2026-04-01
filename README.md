@@ -12,6 +12,8 @@ Run the JavaFX GUI entrypoint:
 .\gradlew runGui
 ```
 
+On Windows ARM64, `\.\gradlew runGui` auto-switches to an installed x64 Java runtime when available.
+
 Run the CLI entrypoint:
 
 ```powershell
