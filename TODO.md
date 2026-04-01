@@ -18,7 +18,7 @@
 - [x] GUI finishing
 
 ## Week 11 — v0.4 (Alpha)
-- [ ] US6 + US7: Walk-dominant route filter + transit/walking breakdown in output (Features in 'Github Issues')
-- [ ] UX Issues as flagged on Github
+- [ ] US6 + US7: Walk-dominant route filter + transit/walking breakdown in output (Features in 'GitHub Issues')
+- [ ] UX Issues as flagged on GitHub
 - [ ] Write and run test cases
 - [ ] Tag and release `v0.3` artifacts
