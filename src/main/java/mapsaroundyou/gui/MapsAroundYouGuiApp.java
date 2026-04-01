@@ -27,25 +27,17 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import mapsaroundyou.app.ApplicationFactory;
 import mapsaroundyou.common.DataLoadException;
-import mapsaroundyou.common.DestinationNotFoundException;
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.common.ListingNotFoundException;
-import mapsaroundyou.common.NoResultsException;
-import mapsaroundyou.logic.SearchLogic;
-import mapsaroundyou.model.CommuteEstimate;
-import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
-import mapsaroundyou.model.TransportMode;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1100;
     private static final int MIN_HEIGHT = 650;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     private GuiSearchService searchService;
 
@@ -72,15 +64,12 @@ public final class MapsAroundYouGuiApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        SearchLogic searchLogic;
         try {
-            searchLogic = ApplicationFactory.createSearchLogic();
+            this.searchService = new GuiSearchService(ApplicationFactory.createSearchLogic());
         } catch (DataLoadException exception) {
             showFatalStartupError(stage, exception.getMessage());
             return;
         }
-
-        this.searchService = new GuiSearchService(searchLogic);
 
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(12));
@@ -163,7 +152,7 @@ public final class MapsAroundYouGuiApp extends Application {
         commuteCol.setMaxWidth(150);
 
         TableColumn<SearchRow, Boolean> airconCol = new TableColumn<>("Aircon");
-        airconCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().isHasAircon()));
+        airconCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
         airconCol.setMaxWidth(100);
 
         TableColumn<SearchRow, String> scoreCol = new TableColumn<>("Score");
@@ -237,20 +226,7 @@ public final class MapsAroundYouGuiApp extends Application {
         destinationComboBox.setConverter(new javafx.util.StringConverter<>() {
             @Override
             public String toString(Destination destination) {
-                if (destination == null) {
-                    return "";
-                }
-                String area = destination.area() == null ? "" : destination.area().trim();
-                String category = destination.category() == null ? "" : destination.category().trim();
-                String suffix = "";
-                if (!category.isBlank() && !area.isBlank()) {
-                    suffix = " (" + category + " • " + area + ")";
-                } else if (!category.isBlank()) {
-                    suffix = " (" + category + ")";
-                } else if (!area.isBlank()) {
-                    suffix = " (" + area + ")";
-                }
-                return destination.name() + suffix;
+                return GuiTextFormatter.formatDestination(destination);
             }
 
             @Override
@@ -283,7 +259,7 @@ public final class MapsAroundYouGuiApp extends Application {
                     if (!destinations.isEmpty()) {
                         destinationComboBox.getSelectionModel().select(0);
                     }
-                    datasetLabel.setText(formatDatasetMetadata(metadata));
+                    datasetLabel.setText(GuiTextFormatter.formatDatasetMetadata(metadata));
                 });
                 return null;
             }
@@ -291,12 +267,10 @@ public final class MapsAroundYouGuiApp extends Application {
 
         initTask.setOnSucceeded(e -> setBusy(false, "Ready."));
         initTask.setOnFailed(e -> {
-            setBusy(false, "Failed to load dataset: " + userMessage(initTask.getException()));
+            setBusy(false, "Failed to load dataset: " + GuiErrorTranslator.toUserMessage(initTask.getException()));
         });
 
-        Thread thread = new Thread(initTask, "mapsaroundyou-init");
-        thread.setDaemon(true);
-        thread.start();
+        GuiTaskRunner.run(initTask, "mapsaroundyou-init");
     }
 
     private void runSearch() {
@@ -308,14 +282,11 @@ public final class MapsAroundYouGuiApp extends Application {
 
         SearchRequest request;
         try {
-            int maxRent = parseInt(maxRentField.getText(), "Max rent");
-            int maxCommute = parseInt(maxCommuteField.getText(), "Max commute");
-            request = new SearchRequest(
-                    destination.destinationId(),
-                    maxRent,
-                    maxCommute,
-                    requireAirconCheckBox.isSelected(),
-                    TransportMode.PUBLIC_TRANSPORT
+            request = GuiSearchRequestParser.parse(
+                    destination,
+                    maxRentField.getText(),
+                    maxCommuteField.getText(),
+                    requireAirconCheckBox.isSelected()
             );
         } catch (InvalidInputException exception) {
             setBusy(false, exception.getMessage());
@@ -335,7 +306,7 @@ public final class MapsAroundYouGuiApp extends Application {
 
         task.setOnSucceeded(e -> {
             SearchResponse response = task.getValue();
-            datasetLabel.setText(formatDatasetMetadata(response.datasetMetadata()));
+            datasetLabel.setText(GuiTextFormatter.formatDatasetMetadata(response.datasetMetadata()));
             resultsTable.setItems(FXCollections.observableArrayList(
                     response.results().stream().map(SearchRow::new).toList()
             ));
@@ -346,12 +317,10 @@ public final class MapsAroundYouGuiApp extends Application {
         });
 
         task.setOnFailed(e -> {
-            setBusy(false, userMessage(task.getException()));
+            setBusy(false, GuiErrorTranslator.toUserMessage(task.getException()));
         });
 
-        Thread thread = new Thread(task, "mapsaroundyou-search");
-        thread.setDaemon(true);
-        thread.start();
+        GuiTaskRunner.run(task, "mapsaroundyou-search");
     }
 
     private void populateDetails(SearchRow row) {
@@ -361,10 +330,10 @@ public final class MapsAroundYouGuiApp extends Application {
         try {
             details = searchService.getListingDetails(row.getListingId());
         } catch (ListingNotFoundException | InvalidInputException exception) {
-            setStatus("Failed to load details: " + userMessage(exception));
+            setStatus("Failed to load details: " + GuiErrorTranslator.toUserMessage(exception));
             return;
         } catch (RuntimeException exception) {
-            setStatus("Failed to load details: " + userMessage(exception));
+            setStatus("Failed to load details: " + GuiErrorTranslator.toUserMessage(exception));
             return;
         }
 
@@ -375,12 +344,8 @@ public final class MapsAroundYouGuiApp extends Application {
         detailsAircon.setText(details.listing().hasAircon() ? "Yes" : "No");
         detailsScore.setText(String.format("%.3f", row.getScore()));
         detailsSource.setText(details.listing().sourcePlatform());
-        detailsNotes.setText(details.listing().notes() == null || details.listing().notes().isBlank()
-                ? "-"
-                : details.listing().notes());
-
-        CommuteEstimate commute = row.commute();
-        detailsCommute.setText(formatCommute(commute));
+        detailsNotes.setText(GuiTextFormatter.formatOptionalText(details.listing().notes()));
+        detailsCommute.setText(GuiTextFormatter.formatCommute(row.commute()));
     }
 
     private void clearDetails() {
@@ -408,57 +373,6 @@ public final class MapsAroundYouGuiApp extends Application {
 
     private void setStatus(String message) {
         statusLabel.setText(message == null || message.isBlank() ? " " : message);
-    }
-
-    private static String formatCommute(CommuteEstimate commute) {
-        return commute.totalMinutes()
-                + " min total ("
-                + commute.transitMinutes() + " transit, "
-                + commute.walkMinutes() + " walk, "
-                + commute.transfers() + " transfer(s), "
-                + String.format("$%.2f", commute.fare())
-                + ")";
-    }
-
-    private static String formatDatasetMetadata(DatasetMetadata metadata) {
-        if (metadata == null) {
-            return "";
-        }
-        String updated = metadata.lastUpdated() == null ? "unknown" : metadata.lastUpdated().format(DATE_FORMAT);
-        String source = metadata.sourceDescription() == null ? "" : metadata.sourceDescription().trim();
-        if (source.isBlank()) {
-            return "Dataset last updated: " + updated;
-        }
-        return "Dataset last updated: " + updated + " • " + source;
-    }
-
-    private static int parseInt(String raw, String label) {
-        if (raw == null || raw.isBlank()) {
-            throw new InvalidInputException(label + " is required.");
-        }
-        try {
-            return Integer.parseInt(raw.trim());
-        } catch (NumberFormatException exception) {
-            throw new InvalidInputException(label + " must be a valid integer.");
-        }
-    }
-
-    private static String userMessage(Throwable throwable) {
-        if (throwable == null) {
-            return "Unknown error.";
-        }
-        if (throwable instanceof NoResultsException
-                || throwable instanceof InvalidInputException
-                || throwable instanceof DestinationNotFoundException
-                || throwable instanceof ListingNotFoundException
-                || throwable instanceof DataLoadException) {
-            return throwable.getMessage();
-        }
-        String message = throwable.getMessage();
-        if (message == null || message.isBlank()) {
-            return "Unexpected error (" + throwable.getClass().getSimpleName() + ").";
-        }
-        return "Unexpected error: " + message;
     }
 
     private static void showFatalStartupError(Stage stage, String message) {

@@ -1,11 +1,18 @@
 # MapsAroundYou
+
 Offline smart rental search scaffold for the MapsAroundYou team project.
 
 ## Quick Start
 
-Prerequisite: Java 21 or newer on `PATH` or in `JAVA_HOME`.
+Prerequisite: Java 21 or newer (x86_64/AMD64) on `PATH` or in `JAVA_HOME`.
 
-Run the current CLI entrypoint:
+Run the JavaFX GUI entrypoint:
+
+```powershell
+.\gradlew runGui
+```
+
+Run the CLI entrypoint:
 
 ```powershell
 .\gradlew run
@@ -27,7 +34,8 @@ Run the local quality gate:
 
 ## Current Scope
 
-- Week 8 scaffold uses a CLI as the temporary app surface.
+- The project currently supports both JavaFX GUI and CLI entrypoints.
+- GUI startup is available through the `runGui` Gradle task.
 - The codebase is organized into `storage`, `service`, `logic`, and `cli` layers so GUI work can plug in later.
 - Runtime data stays local under `src/main/resources/commute_data/`.
 
