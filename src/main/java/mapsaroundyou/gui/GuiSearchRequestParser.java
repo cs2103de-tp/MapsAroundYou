@@ -23,21 +23,28 @@ public final class GuiSearchRequestParser {
 
         return new SearchRequest(
                 destination.destinationId(),
-                parseInt(maxRentRaw, "Max rent"),
-                parseInt(maxCommuteRaw, "Max commute"),
+                parseInt(maxRentRaw, "Max rent", 0),
+                parseInt(maxCommuteRaw, "Max commute", 1),
                 requireAircon,
                 TransportMode.PUBLIC_TRANSPORT
         );
     }
 
-    private static int parseInt(String raw, String label) {
+    private static int parseInt(String raw, String label, int minimumValue) {
         if (raw == null || raw.isBlank()) {
             throw new InvalidInputException(label + " is required.");
         }
+
+        int value;
         try {
-            return Integer.parseInt(raw.trim());
+            value = Integer.parseInt(raw.trim());
         } catch (NumberFormatException exception) {
             throw new InvalidInputException(label + " must be a valid integer.");
         }
+
+        if (value < minimumValue) {
+            throw new InvalidInputException(label + " must be at least " + minimumValue + ".");
+        }
+        return value;
     }
 }
