@@ -29,6 +29,7 @@ import mapsaroundyou.app.ApplicationFactory;
 import mapsaroundyou.common.DataLoadException;
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.common.ListingNotFoundException;
+import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 
