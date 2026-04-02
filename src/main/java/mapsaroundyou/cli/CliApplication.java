@@ -1,5 +1,10 @@
 package mapsaroundyou.cli;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import mapsaroundyou.common.AppConfig;
 import mapsaroundyou.common.InvalidInputException;
@@ -8,11 +13,6 @@ import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 /**
  * Orchestrates CLI execution for interactive and flag-driven modes.
@@ -77,7 +77,7 @@ public final class CliApplication {
                 try {
                     int maxRent = parseInteger(prompt(scanner, "Max rent (SGD)"), "Max rent");
                     int maxCommute = parseInteger(prompt(scanner, "Max commute (minutes)"), "Max commute");
-                        int maxTransfers = parseInteger(prompt(scanner, "Max transfers"), "Max transfers");
+                    int maxTransfers = parseInteger(prompt(scanner, "Max transfers"), "Max transfers");
                     boolean requireAircon = parseYesNo(prompt(scanner, "Require aircon? [y/N]"));
 
                     SearchCommandArguments arguments = new SearchCommandArguments(

@@ -97,6 +97,17 @@ public class DefaultSearchLogic implements SearchLogic {
         if (preferences == null) {
             throw new InvalidInputException("Search preferences must not be null.");
         }
+        String requestedDestinationId = preferences.destinationId();
+        if (requestedDestinationId != null && !requestedDestinationId.isBlank()) {
+            if (currentPreferences.destinationId() == null || currentPreferences.destinationId().isBlank()) {
+                throw new InvalidInputException(
+                        "Set destination first, or leave destinationId blank in preferences.");
+            }
+            if (!requestedDestinationId.trim().equals(currentPreferences.destinationId())) {
+                throw new InvalidInputException(
+                        "Destination in preferences must match the currently selected destination.");
+            }
+        }
         int maxRent = preferences.maxRent();
         int maxCommuteMinutes = preferences.maxCommuteMinutes();
         int maxTransfers = preferences.maxTransfers();
@@ -121,8 +132,8 @@ public class DefaultSearchLogic implements SearchLogic {
                 maxTransfers,
                 requireAircon,
                 transportMode,
-            preferences.resultLimit(),
-            preferences.excludeWalkDominantRoutes()
+                preferences.resultLimit(),
+                preferences.excludeWalkDominantRoutes()
         );
     }
 

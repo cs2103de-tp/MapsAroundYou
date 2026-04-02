@@ -238,14 +238,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description=(
-            "Generate app-facing listings.csv rows from Rental_List.csv. "
+            "Generate app-facing listings.csv rows from origin_nodes.csv. "
             "Defaults to 180 listings across the covered origin set."
         )
     )
     parser.add_argument(
         "--input",
         default=str(DEFAULT_INPUT_CSV),
-        help="Input rental CSV path (default: repo-relative Rental_List.csv).",
+        help="Input rental CSV path (default: repo-relative origin_nodes.csv).",
     )
     parser.add_argument(
         "--output",

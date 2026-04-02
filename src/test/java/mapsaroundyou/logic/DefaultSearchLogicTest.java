@@ -1,5 +1,6 @@
 package mapsaroundyou.logic;
 
+import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.CommuteEstimate;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultSearchLogicTest {
     @Test
@@ -99,6 +101,40 @@ class DefaultSearchLogicTest {
         List<SearchResult> results = logic.generateShortlist();
 
         assertEquals(List.of("L001"), results.stream().map(result -> result.listing().listingId()).toList());
+        }
+
+        @Test
+        void setPreferences_throwsWhenDestinationInPreferencesConflictsWithCurrentDestination() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575"),
+            new Destination("D02", "CBD", "Downtown", "", "018989")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of());
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(new InMemoryTravelTimeRepository(Map.of())),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+
+        assertThrows(InvalidInputException.class, () -> logic.setPreferences(new UserPreferences(
+            "D02",
+            2000,
+            60,
+            1,
+            false,
+            TransportMode.PUBLIC_TRANSPORT,
+            10,
+            false
+        )));
         }
 
     private static final class InMemoryDestinationRepository implements DestinationRepository {

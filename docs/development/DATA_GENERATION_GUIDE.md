@@ -6,7 +6,7 @@ This guide explains how to add new rental listings to MapsAroundYou using the da
 
 The application maintains a two-layer CSV data model:
 
-1. **`Rental_List.csv`** - Origin identity and commute reference
+1. **`origin_nodes.csv`** - Origin identity and commute reference
    - Source file that defines where rentals are located
    - Used as reference data for listings and transit matrix alignment
    - Treat each row as one covered origin node, not one app listing row
@@ -21,7 +21,7 @@ The application maintains a two-layer CSV data model:
 3. **`transit_matrix.csv`** - Commute lookup matrix
    - Pre-computed travel times from each origin to destinations
    - Aligned with `Rental_List.csv` via `flat_id` foreign key
-   - Columns: `flat_id`, `destination_id`, `pt_total`, `pt_walk`, `pt_bus`, ... (and other transit metrics)
+   - Columns: `flat_id`, `destination_id`, `pt_total`, `pt_walk`, `pt_bus`, `pt_transfers`, ... (and other transit metrics)
 
 ## Adding New Listings
 
