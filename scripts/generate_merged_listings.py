@@ -1,93 +1,80 @@
 import csv
+import hashlib
+import math
 import random
-import time
+from dataclasses import dataclass
 from pathlib import Path
-
-import requests
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
-DEFAULT_INPUT_CSV = DATA_DIR / "origin_nodes.csv"
-DEFAULT_OUTPUT_CSV = DATA_DIR / "listings.csv"
-DEFAULT_TARGET_COUNT = 180
+DEFAULT_ORIGIN_NODE_CSV = DATA_DIR / "origin_nodes.csv"
+DEFAULT_LISTINGS_CSV = DATA_DIR / "listings.csv"
+DEFAULT_TRANSIT_FILE = DATA_DIR / "transit_matrix.csv"
+DEFAULT_DEST_CSV = DATA_DIR / "Dst_List.csv"
+DEFAULT_LOCATION_MODE = "random"
+DEFAULT_NEW_ORIGIN_COUNT = 6
+DEFAULT_LISTINGS_PER_ORIGIN = 4
 DEFAULT_SEED = 2103
-REQUEST_DELAY_SECONDS = 0.2
 
-HEADERS = [
-    "listingId",
-    "title",
-    "monthlyRent",
-    "hasAircon",
-    "originNodeId",
-    "address",
-    "roomType",
-    "sourcePlatform",
-    "notes",
-]
+        RENTAL_HEADERS = ["Flat_ID", "Postal_Code", "Region", "Area_Name"]
+        LISTING_HEADERS = [
+            "listingId",
+            "title",
+            "monthlyRent",
+            "hasAircon",
+            "originNodeId",
+            "address",
+            "roomType",
+            "sourcePlatform",
+            "notes",
+        ]
+        TRANSIT_HEADERS = [
+            "flat_id",
+            "destination_id",
+            "pt_total",
+            "pt_walk",
+            "pt_bus",
+            "pt_rail",
+            "pt_transit",
+            "pt_fare",
+            "drive_total",
+            "cycle_total",
+            "walk_total",
+        ]
 
-LISTING_PROFILES = [
-    {
-        "room_types": ["Singleroom", "Shared room", "Common room"],
-        "rent_range": (950, 1450),
-        "aircon_probability": 0.68,
-        "note_pool": [
-            "Affordable option",
-            "Good value option",
-            "Student-friendly budget",
-            "Convenient bus access",
-        ],
-    },
-    {
-        "room_types": ["HDB room", "Common room", "Private room"],
-        "rent_range": (1350, 1900),
-        "aircon_probability": 0.8,
-        "note_pool": [
-            "Curated demo listing",
-            "Near central amenities",
-            "Quiet neighborhood",
-            "Walkable to town center",
-        ],
-    },
-    {
-        "room_types": ["Condo room", "Private room", "HDB room"],
-        "rent_range": (1750, 2500),
-        "aircon_probability": 0.92,
-        "note_pool": [
-            "Premium central option",
-            "Higher rent but newer estate",
-            "Good city access",
-            "Popular for east workers",
-        ],
-    },
-    {
-        "room_types": ["Shared room", "Common room", "Singleroom"],
-        "rent_range": (1100, 1700),
-        "aircon_probability": 0.74,
-        "note_pool": [
-            "Simple central listing",
-            "Popular with interns",
-            "Practical weekday commute",
-            "Balanced price and access",
-        ],
-    },
-]
 
-TITLE_ADJECTIVES = [
-    "City-fringe",
-    "Quiet stay near",
-    "Budget",
-    "Studio-style",
-    "Central",
-    "Premium",
-    "Breezy",
-    "Cozy",
-    "Spacious",
-    "Well-connected",
-    "Accessible",
-    "Modern",
-]
+        class _ListingProfilesByHousing(dict):
+            """
+            A mapping from housing type to a list of listing profiles.
 
+            Internally stores indices into LISTING_PROFILES so that LISTING_PROFILES
+            does not need to be defined at module import time. When accessed via
+            __getitem__, the indices are resolved to actual profile objects.
+            """
+
+            def __getitem__(self, key):
+                indices = super().__getitem__(key)
+                # Resolve stored indices to actual profiles at access time.
+                return [LISTING_PROFILES[i] for i in indices]
+
+
+        HEADERS = LISTING_HEADERS
+
+        LISTING_PROFILES_BY_HOUSING = _ListingProfilesByHousing(
+            {
+                "HDB": [0, 3],
+                "CONDO": [2],
+
+            "Central",
+            "Premium",
+            "Breezy",
+            "Cozy",
+            "Spacious",
+            "Well-connected",
+            "Accessible",
+            "Modern",
+        ]
 SOURCE_PLATFORMS = ["PropertyGuru", "99.co", "SRX", "PropertyLimBrothers"]
 
 # Rail share model for PT allocation:
@@ -107,23 +94,7 @@ FARE_BASE_SGD = 1.09
 FARE_BASE_DISTANCE_KM = 3.2
 FARE_INCREMENT_PER_KM_SGD = 0.045
 
-LISTING_PROFILES = [
-    {
-        "housing": "HDB",
-        "room_types": ["Common room", "HDB room", "Shared room", "Singleroom"],
-        "rent_range": (900, 1650),
-        "aircon_probability": 0.72,
-        "notes": ["Affordable option", "Student-friendly budget", "Practical commute"],
-    },
-    {
-        "housing": "Condo",
-        "room_types": ["Condo room", "Private room"],
-        "rent_range": (1650, 2800),
-        "aircon_probability": 0.93,
-        "notes": ["Premium central option", "Newer estate", "Good city access"],
-    },
-]
-
+# and ensure generated postal codes follow sector trends like 520001-529999.
 # Sector-specific suffix ranges. Values represent the last 4 digits in SSxxxx
 # and ensure generated postcodes follow sector trends like 520001-529999.
 POSTAL_SUFFIX_RANGE_BY_PREFIX = {
@@ -531,10 +502,10 @@ def listing_profile_for_origin(origin: OriginLocation, rng: random.Random) -> di
     Input: origin metadata and RNG.
     Returns: listing profile dictionary.
     """
-    if origin.housing_hint == "Condo":
-        return LISTING_PROFILES[1]
-    if origin.housing_hint == "HDB":
-        return LISTING_PROFILES[0]
+    hint = (origin.housing_hint or "").upper()
+    pool = LISTING_PROFILES_BY_HOUSING.get(hint)
+    if pool:
+        return rng.choice(pool)
     return rng.choice(LISTING_PROFILES)
 
 
@@ -584,6 +555,7 @@ def destination_coord_map() -> dict[str, tuple[float, float]]:
     Input: none.
     Returns: map of destination ID to coordinate tuple.
     """
+    DEST_FILE = DEFAULT_DEST_CSV
     rows = read_csv_rows(DEST_FILE)
     mapping: dict[str, tuple[float, float]] = {}
     for row in rows:
@@ -621,9 +593,9 @@ def build_transit_rows(
             metrics = estimate_transit_metrics(distance_km, rng)
             rows.append(
                 {
-                    "flat_id": origin.flat_id,
-                    "destination_id": destination_id,
                     **metrics,
+                    "destination_id": destination_id,
+                    **metrics
                 }
             )
     return rows
@@ -640,52 +612,62 @@ def run_generation_pipeline(
     Input: location mode, number of new origins, listings per origin, and random seed.
     Returns: None.
     """
-    ensure_file_has_header(RENTAL_FILE, RENTAL_HEADERS)
-    ensure_file_has_header(LISTINGS_FILE, LISTING_HEADERS)
-    ensure_file_has_header(TRANSIT_FILE, TRANSIT_HEADERS)
+    rental_file = DEFAULT_ORIGIN_NODE_CSV
+    listings_file = DEFAULT_LISTINGS_CSV
+    transit_file = DEFAULT_TRANSIT_FILE
+
+    if not DEFAULT_DEST_CSV.exists():
+        raise FileNotFoundError(
+            f"Destination CSV not found: {DEFAULT_DEST_CSV}. "
+            "Expected Dst_List.csv in src/main/resources/commute_data."
+        )
+
+    ensure_file_has_header(rental_file, RENTAL_HEADERS)
+    ensure_file_has_header(listings_file, LISTING_HEADERS)
+    ensure_file_has_header(transit_file, TRANSIT_HEADERS)
+
+    existing_origin_rows = read_csv_rows(rental_file)
+    existing_listing_rows = read_csv_rows(listings_file)
+    existing_transit_rows = read_csv_rows(transit_file)
 
     rng = random.Random(seed)
 
-    try:
-        with Path(input_csv).open(mode="r", encoding="utf-8-sig") as infile:
-            origin_rows = list(csv.DictReader(infile))
+    mode = (location_mode or "").strip().lower()
+    start_origin_index = next_origin_id(existing_origin_rows)
+    if mode == "manual":
+        origins = prompt_manual_origins(start_origin_index)
+    else:
+        origins = build_random_origins(new_origin_count, start_origin_index, rng)
 
-        counts = listing_count_per_origin(len(origin_rows), target_count)
-        address_cache = {}
-        print(
-            f"Reading from {input_csv} and generating {target_count} listings "
-            f"across {len(origin_rows)} covered origin nodes..."
-        )
+    if not origins:
+        print("No new origins were created. Exiting without changes.")
+        return
 
-        with Path(output_csv).open(mode="w", newline="", encoding="utf-8") as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=HEADERS)
-            writer.writeheader()
+    new_rental_rows = build_rental_rows(origins)
+    new_listing_rows = build_listing_rows(
+        origins=origins,
+        listings_per_origin=listings_per_origin,
+        start_listing_index=next_listing_id(existing_listing_rows),
+        rng=rng,
+    )
+    new_transit_rows = build_transit_rows(
+        origins=origins,
+        existing_transit_rows=existing_transit_rows,
+        rng=rng,
+    )
 
-            listing_index = 1
-            for row, listing_count in zip(origin_rows, counts):
-                print(
-                    f"  Generating {listing_count} listings for "
-                    f"{row['Flat_ID']} (Postal: {row['Postal_Code']})..."
-                )
-                for slot_index in range(listing_count):
-                    writer.writerow(
-                        build_listing(
-                            row=row,
-                            index=listing_index,
-                            slot_index=slot_index,
-                            address_cache=address_cache,
-                            rng=rng,
-                        )
-                    )
-                    listing_index += 1
-                time.sleep(REQUEST_DELAY_SECONDS)
+    append_dict_rows(rental_file, RENTAL_HEADERS, new_rental_rows)
+    append_dict_rows(listings_file, LISTING_HEADERS, new_listing_rows)
+    append_dict_rows(transit_file, TRANSIT_HEADERS, new_transit_rows)
 
-        print(
-            f"\nSuccess! Generated '{output_csv}' with {target_count} "
-            "app-facing listing rows."
-        )
-    except FileNotFoundError:
-        print(f"[!] Error: Could not find '{input_csv}'. Please verify the path or pass --input.")
+    print("\nGeneration complete.")
+    print(f"  Mode: {mode or 'random'}")
+    print(f"  Added origins: {len(new_rental_rows)}")
+    print(f"  Added listings: {len(new_listing_rows)}")
+    print(f"  Added transit rows: {len(new_transit_rows)}")
+    print(f"  Rental file: {rental_file}")
+    print(f"  Listings file: {listings_file}")
+    print(f"  Transit file: {transit_file}")
 
 
 if __name__ == "__main__":
@@ -693,32 +675,43 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description=(
-            "Generate app-facing listings.csv rows from origin_nodes.csv. "
-            "Defaults to 180 listings across the covered origin set."
+            "Append generated origin, listing, and transit rows to the dataset CSVs."
         )
     )
     parser.add_argument(
-        "--input",
-        default=str(DEFAULT_INPUT_CSV),
-        help="Input origin-node CSV path (default: repo-relative origin_nodes.csv).",
+        "--location-mode",
+        choices=["random", "manual"],
+        default=DEFAULT_LOCATION_MODE,
+        help="How to create new origins: random generation or terminal manual input.",
     )
     parser.add_argument(
-        "--output",
-        default=str(DEFAULT_OUTPUT_CSV),
-        help="Output CSV path (default: repo-relative listings.csv).",
-    )
-    parser.add_argument(
-        "--target-count",
+        "--new-origin-count",
         type=int,
-        default=DEFAULT_TARGET_COUNT,
-        help="Total number of listing rows to generate across the origin set.",
+        default=DEFAULT_NEW_ORIGIN_COUNT,
+        help="How many new origins to create in random mode.",
+    )
+    parser.add_argument(
+        "--listings-per-origin",
+        type=int,
+        default=DEFAULT_LISTINGS_PER_ORIGIN,
+        help="How many listing rows to generate per new origin.",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=DEFAULT_SEED,
-        help="Deterministic random seed for reproducible demo datasets.",
+        help="Deterministic random seed for reproducible random-mode generation.",
     )
     args = parser.parse_args()
 
-    generate_merged_listings(args.input, args.output, args.target_count, args.seed)
+    if args.new_origin_count <= 0 and args.location_mode == "random":
+        raise SystemExit("--new-origin-count must be a positive integer in random mode.")
+    if args.listings_per_origin <= 0:
+        raise SystemExit("--listings-per-origin must be a positive integer.")
+
+    run_generation_pipeline(
+        location_mode=args.location_mode,
+        new_origin_count=args.new_origin_count,
+        listings_per_origin=args.listings_per_origin,
+        seed=args.seed,
+    )
