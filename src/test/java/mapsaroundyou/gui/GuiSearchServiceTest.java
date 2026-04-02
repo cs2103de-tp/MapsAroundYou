@@ -7,6 +7,7 @@ import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 import mapsaroundyou.model.RentalListing;
 import mapsaroundyou.model.SearchResult;
+import mapsaroundyou.model.SortMode;
 import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
 
@@ -38,14 +39,20 @@ class GuiSearchServiceTest {
         RecordingSearchLogic searchLogic = new RecordingSearchLogic();
         GuiSearchService service = new GuiSearchService(searchLogic);
 
-        SearchRequest request = new SearchRequest("D01", 2200, 45, true, TransportMode.PUBLIC_TRANSPORT);
+        SearchRequest request = new SearchRequest(
+                "D01",
+                2200,
+                45,
+                10,
+                true,
+                TransportMode.PUBLIC_TRANSPORT,
+                5,
+                SortMode.BALANCED,
+                true
+        );
         SearchResponse response = service.search(request);
 
-        assertEquals("D01", searchLogic.destinationId);
-        assertEquals(2200, searchLogic.maxRent);
-        assertEquals(45, searchLogic.maxCommuteMinutes);
-        assertEquals(true, searchLogic.requireAircon);
-        assertEquals(TransportMode.PUBLIC_TRANSPORT, searchLogic.transportMode);
+        assertEquals(request.toUserPreferences(), searchLogic.updatedPreferences);
         assertEquals(searchLogic.searchResults, response.results());
         assertEquals(searchLogic.datasetMetadata, response.datasetMetadata());
     }
@@ -81,6 +88,14 @@ class GuiSearchServiceTest {
         assertEquals(searchLogic.listingDetails, details);
     }
 
+    @Test
+    void getCurrentPreferences_delegatesToSearchLogic() {
+        RecordingSearchLogic searchLogic = new RecordingSearchLogic();
+        GuiSearchService service = new GuiSearchService(searchLogic);
+
+        assertEquals(searchLogic.currentPreferences, service.getCurrentPreferences());
+    }
+
     private static final class RecordingSearchLogic implements SearchLogic {
         private final List<Destination> supportedDestinations =
                 List.of(new Destination("D01", "NUS", "University", "Kent Ridge", "117575"));
@@ -95,11 +110,8 @@ class GuiSearchServiceTest {
         private final ListingDetails listingDetails =
                 new ListingDetails(result.listing(), Optional.of(result.commute()));
 
-        private String destinationId;
-        private int maxRent;
-        private int maxCommuteMinutes;
-        private boolean requireAircon;
-        private TransportMode transportMode;
+        private UserPreferences currentPreferences = UserPreferences.defaults();
+        private UserPreferences updatedPreferences;
 
         @Override
         public List<Destination> getSupportedDestinations() {
@@ -112,16 +124,9 @@ class GuiSearchServiceTest {
         }
 
         @Override
-        public void setDestination(String destinationId) {
-            this.destinationId = destinationId;
-        }
-
-        @Override
-        public void setPreferences(int maxRent, int maxCommuteMinutes, boolean requireAircon, TransportMode mode) {
-            this.maxRent = maxRent;
-            this.maxCommuteMinutes = maxCommuteMinutes;
-            this.requireAircon = requireAircon;
-            this.transportMode = mode;
+        public void updatePreferences(UserPreferences preferences) {
+            updatedPreferences = preferences;
+            currentPreferences = preferences;
         }
 
         @Override
@@ -141,7 +146,7 @@ class GuiSearchServiceTest {
 
         @Override
         public UserPreferences getCurrentPreferences() {
-            throw new UnsupportedOperationException();
+            return currentPreferences;
         }
     }
 }

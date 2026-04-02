@@ -119,8 +119,12 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
 | `destinationId` | String | Primary destination from the supported destination list |
 | `maxRent` | int | Max monthly rent filter |
 | `maxCommuteMinutes` | int | Max commute time (minutes) |
+| `maxWalkMinutes` | int | Max walking time (minutes) |
 | `requireAircon` | boolean | Require aircon |
 | `transportMode` | enum | MVP default: public transport |
+| `resultLimit` | int | Max number of returned results |
+| `sortMode` | enum | `COMMUTE`, `RENT`, or `BALANCED` |
+| `excludeWalkDominantRoutes` | boolean | Reject routes whose walking ratio meets the configured threshold |
 
 ---
 

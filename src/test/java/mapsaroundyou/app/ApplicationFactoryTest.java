@@ -1,6 +1,5 @@
 package mapsaroundyou.app;
 
-import mapsaroundyou.logic.DefaultSearchLogic;
 import mapsaroundyou.logic.SearchLogic;
 
 import org.junit.jupiter.api.Test;
@@ -11,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationFactoryTest {
     @Test
-    void createSearchLogic_returnsInitializedDefaultSearchLogic() {
+    void createSearchLogic_returnsInitializedSearchLogic() {
         SearchLogic searchLogic = ApplicationFactory.createSearchLogic();
 
         assertNotNull(searchLogic);
-        assertTrue(searchLogic instanceof DefaultSearchLogic);
+        assertTrue(searchLogic.getCurrentPreferences() != null);
         assertFalse(searchLogic.getSupportedDestinations().isEmpty());
         assertNotNull(searchLogic.getDatasetMetadata());
     }

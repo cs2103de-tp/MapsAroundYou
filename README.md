@@ -25,7 +25,7 @@ Interactive mode now stays open for repeated searches until the user types `exit
 Run the flag-driven search mode:
 
 ```powershell
-.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
+.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --max-walk 10 --result-limit 5 --sort balanced --require-aircon --exclude-walk-dominant"
 ```
 
 Run the local quality gate:
@@ -40,6 +40,7 @@ Run the local quality gate:
 - GUI startup is available through the `runGui` Gradle task.
 - The codebase is organized into `storage`, `service`, `logic`, and `cli` layers so GUI work can plug in later.
 - Runtime data stays local under `src/main/resources/commute_data/`.
+- Last-used search preferences are stored locally under the current user's home directory.
 
 ## Contributing
 

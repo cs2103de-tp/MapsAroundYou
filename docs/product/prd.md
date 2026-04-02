@@ -24,8 +24,8 @@ International students and new working professionals arriving in Singapore face 
 ## 3. Goals
 
 - Help users filter rental listings by commute time from a chosen supported destination.
-- Surface only listings within the user's rent budget and commute time cap.
-- Rank results deterministically so the best options appear first.
+- Surface only listings within the user's rent budget, commute cap, and walking cap.
+- Let users choose shortlist size and sort mode while preserving deterministic ordering.
 - Provide a breakdown of transit vs. walking time for each shortlisted listing (V1.4).
 - Deliver the product as a runnable offline JAR with a GUI.
 
@@ -90,6 +90,7 @@ As a renter, I want to filter listings by a maximum travel time limit so that I 
 **Acceptance Criteria:**
 - User can input a maximum travel time in minutes via the GUI.
 - System looks up basic commute time using the bundled local travel-time matrix and excludes listings exceeding the cap.
+- User can also input a maximum walking time in minutes.
 
 #### US4 — Require Air-Conditioning
 As a renter, I want to require air-conditioning so that unsuitable listings are removed.
@@ -104,6 +105,7 @@ As a renter, I want to see a clean output of the best matching listings in a dis
 **Acceptance Criteria:**
 - System outputs the top N listings (default N=10) that pass all filters to the right display panel.
 - Each listing card displays the rent, address, and commute summary.
+- User can choose whether results are sorted by commute, rent, or a balanced score.
 
 ---
 
@@ -140,39 +142,43 @@ As a renter, I want to select a preset (Student vs. Worker) so that default time
 | FR-01 | User can select a supported destination from a predefined list via a dropdown or text field. |
 | FR-02 | User can set a maximum monthly rent (SGD integer). |
 | FR-03 | User can set a maximum commute time in minutes. |
-| FR-04 | User can toggle an "Air-Con Required" filter. |
-| FR-05 | System validates all inputs before executing a search. Invalid destination IDs return a user-friendly error. |
+| FR-04 | User can set a maximum walking time in minutes. |
+| FR-05 | User can toggle an "Air-Con Required" filter. |
+| FR-06 | User can choose a result limit and sort mode for the shortlist. |
+| FR-07 | System validates all inputs before executing a search. Invalid destination IDs return a user-friendly error. |
 
 ### 7.2 Search and Filtering
 
 | ID | Requirement |
 |----|-------------|
-| FR-06 | System loads curated housing listings from a local static dataset on search. |
-| FR-07 | System excludes listings with `monthlyRent > maxRent`. |
-| FR-08 | System excludes listings without air-con when the aircon filter is enabled. |
-| FR-09 | System computes commute time from each listing's `originNodeId` to the selected destination using the local travel-time dataset. |
-| FR-10 | System excludes listings where computed `totalMinutes > maxCommuteMinutes`. |
+| FR-08 | System loads curated housing listings from a local static dataset on search. |
+| FR-09 | System excludes listings with `monthlyRent > maxRent`. |
+| FR-10 | System excludes listings without air-con when the aircon filter is enabled. |
+| FR-11 | System computes commute time from each listing's `originNodeId` to the selected destination using the local travel-time dataset. |
+| FR-12 | System excludes listings where computed `totalMinutes > maxCommuteMinutes`. |
+| FR-13 | System excludes listings where computed `walkMinutes > maxWalkMinutes`. |
 
 ### 7.3 Ranking and Results Display
 
 | ID | Requirement |
 |----|-------------|
-| FR-11 | Shortlisted listings are ranked deterministically: ascending commute time, then ascending rent, then `listingId` as tie-breaker. |
-| FR-12 | Results panel displays the top N listings (default N=10) with rent, address, and commute summary per card. |
-| FR-13 | User can click a listing to view full details including commute breakdown (V1.4). |
+| FR-14 | Shortlisted listings are ranked deterministically according to the selected sort mode, with stable tie-breakers. |
+| FR-15 | Results panel displays the top N listings (default N=10) with rent, address, and commute summary per card. |
+| FR-16 | User can click a listing to view full details including commute breakdown (V1.4). |
 
 ### 7.4 Commute Breakdown (V1.4)
 
 | ID | Requirement |
 |----|-------------|
-| FR-14 | System provides transit time, walking time, number of transfers, and route stations for each listing. |
-| FR-15 | System flags and rejects listings where the walking ratio (`walkMinutes / totalMinutes`) is greater than or equal to the configured walk-dominant threshold. |
+| FR-17 | System provides transit time, walking time, number of transfers, and route stations for each listing. |
+| FR-18 | System can reject listings where the walking ratio (`walkMinutes / totalMinutes`) is greater than or equal to the configured walk-dominant threshold when the user enables the filter. |
 
 ### 7.5 Data Freshness Notice
 
 | ID | Requirement |
 |----|-------------|
-| FR-16 | The UI displays a notice such as "Data accurate as of \<last-updated date\>" based on dataset metadata. |
+| FR-19 | The UI displays a notice such as "Data accurate as of \<last-updated date\>" based on dataset metadata. |
+| FR-20 | The application persists the last successful search preferences locally and restores them on startup when possible. |
 
 ---
 
@@ -198,7 +204,7 @@ As a renter, I want to select a preset (Student vs. Worker) so that default time
 | **TravelTimeRecord** | `originNodeId`, `destinationId`, `totalMinutes`, `transitMinutes`, `walkMinutes`, `transfers`, `source` |
 | **TravelTimeMatrix** | keyed lookup: `Map<originNodeId, Map<destinationId, TravelTimeRecord>>` |
 | **RentalListing** | `listingId`, `title`, `monthlyRent`, `hasAircon`, `originNodeId`, `address`, `roomType`, `sourcePlatform`, `destinationTags`, `notes` |
-| **UserPreferences** | `destinationId`, `maxRent`, `maxCommuteMinutes`, `requireAircon`, `transportMode` |
+| **UserPreferences** | `destinationId`, `maxRent`, `maxCommuteMinutes`, `maxWalkMinutes`, `requireAircon`, `transportMode`, `resultLimit`, `sortMode`, `excludeWalkDominantRoutes` |
 | **CommuteEstimate** | `totalMinutes`, `transitMinutes`, `walkMinutes`, `transfers`, `routeStations` |
 | **SearchResult** | `listing`, `commute`, `score` |
 

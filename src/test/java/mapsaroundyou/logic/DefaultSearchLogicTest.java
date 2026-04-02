@@ -5,7 +5,9 @@ import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.RentalListing;
 import mapsaroundyou.model.SearchResult;
+import mapsaroundyou.model.SortMode;
 import mapsaroundyou.model.TransportMode;
+import mapsaroundyou.model.UserPreferences;
 import mapsaroundyou.service.CommuteEstimator;
 import mapsaroundyou.service.ListingFilter;
 import mapsaroundyou.service.ListingRanker;
@@ -25,27 +27,178 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultSearchLogicTest {
     @Test
     void generateShortlist_appliesCommuteCapAndDeterministicRanking() {
+        DefaultSearchLogic logic = createLogic(
+                List.of(
+                        new RentalListing("L001", "Listing A", 1500, true, "R01", "Addr 1", "HDB", "PG", "Note"),
+                        new RentalListing("L002", "Listing B", 1300, true, "R02", "Addr 2", "HDB", "PG", "Note"),
+                        new RentalListing("L003", "Listing C", 1250, false, "R03", "Addr 3", "HDB", "PG", "Note")
+                ),
+                Map.of(
+                        "R01:D01", new CommuteEstimate("R01", "D01", 30, 20, 10, 0, 1.50d),
+                        "R02:D01", new CommuteEstimate("R02", "D01", 30, 24, 6, 0, 1.60d),
+                        "R03:D01", new CommuteEstimate("R03", "D01", 50, 40, 10, 0, 1.80d)
+                )
+        );
+
+        logic.updatePreferences(new UserPreferences(
+                "D01",
+                1600,
+                45,
+                10,
+                true,
+                TransportMode.PUBLIC_TRANSPORT,
+                10,
+                SortMode.COMMUTE,
+                false
+        ));
+
+        List<SearchResult> results = logic.generateShortlist();
+
+        assertEquals(List.of("L002", "L001"),
+                results.stream().map(result -> result.listing().listingId()).toList());
+    }
+
+    @Test
+    void generateShortlist_excludesListingsAboveMaxWalkMinutes() {
+        DefaultSearchLogic logic = createLogic(
+                List.of(
+                        new RentalListing("L001", "Listing A", 1500, true, "R01", "Addr 1", "HDB", "PG", "Note"),
+                        new RentalListing("L002", "Listing B", 1400, true, "R02", "Addr 2", "HDB", "PG", "Note")
+                ),
+                Map.of(
+                        "R01:D01", new CommuteEstimate("R01", "D01", 30, 19, 11, 0, 1.50d),
+                        "R02:D01", new CommuteEstimate("R02", "D01", 30, 20, 10, 0, 1.60d)
+                )
+        );
+
+        logic.updatePreferences(new UserPreferences(
+                "D01",
+                2000,
+                45,
+                10,
+                false,
+                TransportMode.PUBLIC_TRANSPORT,
+                10,
+                SortMode.COMMUTE,
+                false
+        ));
+
+        List<SearchResult> results = logic.generateShortlist();
+
+        assertEquals(List.of("L002"),
+                results.stream().map(result -> result.listing().listingId()).toList());
+    }
+
+    @Test
+    void generateShortlist_excludesWalkDominantRoutesOnlyWhenEnabled() {
+        DefaultSearchLogic logic = createLogic(
+                List.of(
+                        new RentalListing("L001", "Listing A", 1500, true, "R01", "Addr 1", "HDB", "PG", "Note"),
+                        new RentalListing("L002", "Listing B", 1400, true, "R02", "Addr 2", "HDB", "PG", "Note")
+                ),
+                Map.of(
+                        "R01:D01", new CommuteEstimate("R01", "D01", 30, 12, 18, 0, 1.50d),
+                        "R02:D01", new CommuteEstimate("R02", "D01", 30, 24, 6, 0, 1.60d)
+                )
+        );
+
+        logic.updatePreferences(new UserPreferences(
+                "D01",
+                2000,
+                45,
+                20,
+                false,
+                TransportMode.PUBLIC_TRANSPORT,
+                10,
+                SortMode.COMMUTE,
+                false
+        ));
+        assertEquals(List.of("L002", "L001"),
+                logic.generateShortlist().stream().map(result -> result.listing().listingId()).toList());
+
+        logic.updatePreferences(new UserPreferences(
+                "D01",
+                2000,
+                45,
+                20,
+                false,
+                TransportMode.PUBLIC_TRANSPORT,
+                10,
+                SortMode.COMMUTE,
+                true
+        ));
+        assertEquals(List.of("L002"),
+                logic.generateShortlist().stream().map(result -> result.listing().listingId()).toList());
+    }
+
+    @Test
+    void generateShortlist_appliesBalancedSortAndResultLimit() {
+        DefaultSearchLogic logic = createLogic(
+                List.of(
+                        new RentalListing("L001", "Listing A", 2400, true, "R01", "Addr 1", "HDB", "PG", "Note"),
+                        new RentalListing("L002", "Listing B", 1200, true, "R02", "Addr 2", "HDB", "PG", "Note"),
+                        new RentalListing("L003", "Listing C", 1500, true, "R03", "Addr 3", "HDB", "PG", "Note")
+                ),
+                Map.of(
+                        "R01:D01", new CommuteEstimate("R01", "D01", 20, 16, 4, 0, 1.50d),
+                        "R02:D01", new CommuteEstimate("R02", "D01", 30, 22, 8, 0, 1.60d),
+                        "R03:D01", new CommuteEstimate("R03", "D01", 40, 35, 5, 0, 1.70d)
+                )
+        );
+
+        logic.updatePreferences(new UserPreferences(
+                "D01",
+                3000,
+                60,
+                10,
+                false,
+                TransportMode.PUBLIC_TRANSPORT,
+                2,
+                SortMode.BALANCED,
+                false
+        ));
+
+        List<SearchResult> results = logic.generateShortlist();
+
+        assertEquals(List.of("L002", "L001"),
+                results.stream().map(result -> result.listing().listingId()).toList());
+    }
+
+    @Test
+    void updatePreferences_rejectsInvalidResultLimit() {
+        DefaultSearchLogic logic = createLogic(List.of(), Map.of());
+
+        assertThrows(RuntimeException.class, () -> logic.updatePreferences(new UserPreferences(
+                "D01",
+                2000,
+                45,
+                10,
+                false,
+                TransportMode.PUBLIC_TRANSPORT,
+                0,
+                SortMode.COMMUTE,
+                false
+        )));
+    }
+
+    private static DefaultSearchLogic createLogic(
+            List<RentalListing> listings,
+            Map<String, CommuteEstimate> commuteByPair
+    ) {
         DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
                 new Destination("D01", "NUS", "University", "", "117575")
         ));
-        ListingRepository listingRepository = new InMemoryListingRepository(List.of(
-                new RentalListing("L001", "Listing A", 1500, true, "R01", "Addr 1", "HDB", "PG", "Note"),
-                new RentalListing("L002", "Listing B", 1300, true, "R02", "Addr 2", "HDB", "PG", "Note"),
-                new RentalListing("L003", "Listing C", 1250, false, "R03", "Addr 3", "HDB", "PG", "Note")
-        ));
-        TravelTimeRepository travelTimeRepository = new InMemoryTravelTimeRepository(Map.of(
-                "R01:D01", new CommuteEstimate("R01", "D01", 30, 20, 10, 0, 1.50d),
-                "R02:D01", new CommuteEstimate("R02", "D01", 30, 24, 6, 0, 1.60d),
-                "R03:D01", new CommuteEstimate("R03", "D01", 50, 40, 10, 0, 1.80d)
-        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(listings);
+        TravelTimeRepository travelTimeRepository = new InMemoryTravelTimeRepository(commuteByPair);
         DatasetMetadataRepository datasetMetadataRepository =
                 () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
 
-        DefaultSearchLogic logic = new DefaultSearchLogic(
+        return new DefaultSearchLogic(
                 destinationRepository,
                 listingRepository,
                 datasetMetadataRepository,
@@ -54,14 +207,6 @@ class DefaultSearchLogicTest {
                 new ListingRanker(),
                 new RouteAnalyzer(0.6d)
         );
-
-        logic.setDestination("D01");
-        logic.setPreferences(1600, 45, true, TransportMode.PUBLIC_TRANSPORT);
-
-        List<SearchResult> results = logic.generateShortlist();
-
-        assertEquals(List.of("L002", "L001"),
-                results.stream().map(result -> result.listing().listingId()).toList());
     }
 
     private static final class InMemoryDestinationRepository implements DestinationRepository {

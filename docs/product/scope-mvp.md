@@ -29,6 +29,8 @@ The Smart Rental Search Algorithm is a desktop Java application designed to reve
 ### 4.3 Anti-Walk-Dominant Routing Logic
 - [ ] **REQ-3A (Walking Cap):** The user must be able to set an acceptable walking time per trip segment (defaulting to 10 minutes).
 - [ ] **REQ-3B (Route Rejection):** The algorithm must implement a sanity rule to reject routes where the walking time ratio is disproportionately high (e.g., walking ratio >= 0.6 of total time), ensuring practical public transport suggestions.
+- [ ] **REQ-4A (Result Controls):** The user must be able to set the shortlist size and choose a supported sort mode.
+- [ ] **REQ-4B (Preference Persistence):** The application should restore the last successful search preferences locally on startup.
 
 ### 4.4 Output and Display
 - [ ] **REQ-4A (Shortlist Generation):** The system must deterministically output a shortlist of the top N listings (default N=10) that pass all filters.

@@ -7,6 +7,7 @@ import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 import mapsaroundyou.model.SearchResult;
+import mapsaroundyou.model.SortMode;
 import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
 
@@ -40,7 +41,7 @@ class CliApplicationTest {
     void run_invalidDestination_returnsErrorCode() {
         SearchLogic searchLogic = new FakeSearchLogic() {
             @Override
-            public void setDestination(String destinationId) {
+            public void updatePreferences(UserPreferences preferences) {
                 throw new DestinationNotFoundException("Unknown destination.");
             }
         };
@@ -74,7 +75,7 @@ class CliApplicationTest {
 
         OutputCapture outputCapture = new OutputCapture();
         int exitCode = outputCapture.run(
-                "D01\n1800\n35\ny\nexit\n",
+                "D01\n1800\n35\n10\ny\n10\ncommute\nn\nexit\n",
                 () -> cliApplication.run(new String[]{})
         );
 
@@ -82,6 +83,33 @@ class CliApplicationTest {
         assertEquals(1, searchLogic.generateShortlistCalls());
         assertTrue(outputCapture.stdout().contains("Top matches:"));
         assertTrue(outputCapture.stdout().contains("Exiting MapsAroundYou CLI."));
+    }
+
+    @Test
+    void run_interactiveMode_blankInputsReuseSavedDefaults() {
+        CountingSearchLogic searchLogic = new CountingSearchLogic();
+        searchLogic.currentPreferences = new UserPreferences(
+                "D01",
+                1800,
+                35,
+                10,
+                true,
+                TransportMode.PUBLIC_TRANSPORT,
+                5,
+                SortMode.RENT,
+                true
+        );
+        CliApplication cliApplication = new CliApplication(searchLogic, new CliCommandParser(), new CliPrinter());
+
+        OutputCapture outputCapture = new OutputCapture();
+        int exitCode = outputCapture.run(
+                "\n\n\n\n\n\n\n\nexit\n",
+                () -> cliApplication.run(new String[]{})
+        );
+
+        assertEquals(0, exitCode);
+        assertEquals(1, searchLogic.generateShortlistCalls());
+        assertEquals(searchLogic.currentPreferences, searchLogic.updatedPreferences);
     }
 
     @Test
@@ -111,16 +139,7 @@ class CliApplicationTest {
         }
 
         @Override
-        public void setDestination(String destinationId) {
-        }
-
-        @Override
-        public void setPreferences(
-                int maxRent,
-                int maxCommuteMinutes,
-                boolean requireAircon,
-                TransportMode transportMode
-        ) {
+        public void updatePreferences(UserPreferences preferences) {
         }
 
         @Override
@@ -140,12 +159,25 @@ class CliApplicationTest {
 
         @Override
         public UserPreferences getCurrentPreferences() {
-            throw new UnsupportedOperationException();
+            return UserPreferences.defaults();
         }
     }
 
     private static final class CountingSearchLogic extends FakeSearchLogic {
         private int generateShortlistCalls;
+        private UserPreferences currentPreferences = UserPreferences.defaults();
+        private UserPreferences updatedPreferences;
+
+        @Override
+        public void updatePreferences(UserPreferences preferences) {
+            updatedPreferences = preferences;
+            currentPreferences = preferences;
+        }
+
+        @Override
+        public UserPreferences getCurrentPreferences() {
+            return currentPreferences;
+        }
 
         @Override
         public List<SearchResult> generateShortlist() {

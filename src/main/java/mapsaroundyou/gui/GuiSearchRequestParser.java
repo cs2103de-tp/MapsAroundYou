@@ -2,6 +2,7 @@ package mapsaroundyou.gui;
 
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.Destination;
+import mapsaroundyou.model.SortMode;
 import mapsaroundyou.model.TransportMode;
 
 import java.util.Objects;
@@ -17,16 +18,25 @@ public final class GuiSearchRequestParser {
             Destination destination,
             String maxRentRaw,
             String maxCommuteRaw,
-            boolean requireAircon
+            String maxWalkRaw,
+            boolean requireAircon,
+            String resultLimitRaw,
+            SortMode sortMode,
+            boolean excludeWalkDominantRoutes
     ) {
         Objects.requireNonNull(destination, "destination");
+        Objects.requireNonNull(sortMode, "sortMode");
 
         return new SearchRequest(
                 destination.destinationId(),
                 parseInt(maxRentRaw, "Max rent", 0),
                 parseInt(maxCommuteRaw, "Max commute", 1),
+                parseInt(maxWalkRaw, "Max walk", 0),
                 requireAircon,
-                TransportMode.PUBLIC_TRANSPORT
+                TransportMode.PUBLIC_TRANSPORT,
+                parseInt(resultLimitRaw, "Result limit", 1),
+                sortMode,
+                excludeWalkDominantRoutes
         );
     }
 

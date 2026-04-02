@@ -30,6 +30,8 @@ import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
+import mapsaroundyou.model.SortMode;
+import mapsaroundyou.model.UserPreferences;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +45,11 @@ public final class MapsAroundYouGuiApp extends Application {
     private final ComboBox<Destination> destinationComboBox = new ComboBox<>();
     private final TextField maxRentField = new TextField();
     private final TextField maxCommuteField = new TextField();
+    private final TextField maxWalkField = new TextField();
     private final CheckBox requireAirconCheckBox = new CheckBox("Require aircon");
+    private final TextField resultLimitField = new TextField();
+    private final ComboBox<SortMode> sortModeComboBox = new ComboBox<>();
+    private final CheckBox excludeWalkDominantRoutesCheckBox = new CheckBox("Exclude walk-dominant routes");
     private final Button searchButton = new Button("Search");
 
     private final TableView<SearchRow> resultsTable = new TableView<>();
@@ -107,6 +113,10 @@ public final class MapsAroundYouGuiApp extends Application {
 
         maxRentField.setPromptText("e.g. 1800");
         maxCommuteField.setPromptText("e.g. 45");
+        maxWalkField.setPromptText("e.g. 10");
+        resultLimitField.setPromptText("e.g. 10");
+        sortModeComboBox.setItems(FXCollections.observableArrayList(SortMode.values()));
+        sortModeComboBox.getSelectionModel().select(SortMode.COMMUTE);
 
         GridPane form = new GridPane();
         form.setHgap(8);
@@ -122,8 +132,20 @@ public final class MapsAroundYouGuiApp extends Application {
         form.add(new Label("Max commute (minutes)"), 0, row);
         form.add(maxCommuteField, 1, row++);
 
+        form.add(new Label("Max walking time (minutes)"), 0, row);
+        form.add(maxWalkField, 1, row++);
+
         form.add(new Label("Aircon"), 0, row);
         form.add(requireAirconCheckBox, 1, row++);
+
+        form.add(new Label("Result limit"), 0, row);
+        form.add(resultLimitField, 1, row++);
+
+        form.add(new Label("Sort mode"), 0, row);
+        form.add(sortModeComboBox, 1, row++);
+
+        form.add(new Label("Route quality"), 0, row);
+        form.add(excludeWalkDominantRoutesCheckBox, 1, row++);
 
         searchButton.setDefaultButton(true);
 
@@ -253,7 +275,8 @@ public final class MapsAroundYouGuiApp extends Application {
             protected InitialData call() {
                 return new InitialData(
                         searchService.getSupportedDestinations(),
-                        searchService.getDatasetMetadata()
+                        searchService.getDatasetMetadata(),
+                        searchService.getCurrentPreferences()
                 );
             }
         };
@@ -262,8 +285,11 @@ public final class MapsAroundYouGuiApp extends Application {
             InitialData initialData = initTask.getValue();
             destinationComboBox.setItems(FXCollections.observableArrayList(initialData.destinations()));
             if (!initialData.destinations().isEmpty()) {
-                destinationComboBox.getSelectionModel().select(0);
+                destinationComboBox.getSelectionModel().select(
+                        resolveInitialDestination(initialData.destinations(), initialData.preferences())
+                );
             }
+            applyInitialPreferences(initialData.preferences());
             datasetLabel.setText(GuiTextFormatter.formatDatasetMetadata(initialData.metadata()));
             setBusy(false, "Ready.");
         });
@@ -287,7 +313,11 @@ public final class MapsAroundYouGuiApp extends Application {
                     destination,
                     maxRentField.getText(),
                     maxCommuteField.getText(),
-                    requireAirconCheckBox.isSelected()
+                    maxWalkField.getText(),
+                    requireAirconCheckBox.isSelected(),
+                    resultLimitField.getText(),
+                    sortModeComboBox.getValue(),
+                    excludeWalkDominantRoutesCheckBox.isSelected()
             );
         } catch (InvalidInputException exception) {
             setBusy(false, exception.getMessage());
@@ -363,7 +393,11 @@ public final class MapsAroundYouGuiApp extends Application {
         destinationComboBox.setDisable(busy);
         maxRentField.setDisable(busy);
         maxCommuteField.setDisable(busy);
+        maxWalkField.setDisable(busy);
         requireAirconCheckBox.setDisable(busy);
+        resultLimitField.setDisable(busy);
+        sortModeComboBox.setDisable(busy);
+        excludeWalkDominantRoutesCheckBox.setDisable(busy);
         searchButton.setDisable(busy);
         resultsTable.setDisable(busy);
         setStatus(message);
@@ -373,7 +407,33 @@ public final class MapsAroundYouGuiApp extends Application {
         statusLabel.setText(message == null || message.isBlank() ? " " : message);
     }
 
-    private record InitialData(List<Destination> destinations, DatasetMetadata metadata) {
+    static Destination resolveInitialDestination(List<Destination> destinations, UserPreferences preferences) {
+        if (destinations.isEmpty()) {
+            return null;
+        }
+        String preferredDestinationId = preferences == null ? null : preferences.destinationId();
+        if (preferredDestinationId != null) {
+            for (Destination destination : destinations) {
+                if (destination.destinationId().equals(preferredDestinationId)) {
+                    return destination;
+                }
+            }
+        }
+        return destinations.get(0);
+    }
+
+    private void applyInitialPreferences(UserPreferences preferences) {
+        UserPreferences resolvedPreferences = preferences == null ? UserPreferences.defaults() : preferences;
+        maxRentField.setText(Integer.toString(resolvedPreferences.maxRent()));
+        maxCommuteField.setText(Integer.toString(Math.max(1, resolvedPreferences.maxCommuteMinutes())));
+        maxWalkField.setText(Integer.toString(resolvedPreferences.maxWalkMinutes()));
+        requireAirconCheckBox.setSelected(resolvedPreferences.requireAircon());
+        resultLimitField.setText(Integer.toString(resolvedPreferences.resultLimit()));
+        sortModeComboBox.getSelectionModel().select(resolvedPreferences.sortMode());
+        excludeWalkDominantRoutesCheckBox.setSelected(resolvedPreferences.excludeWalkDominantRoutes());
+    }
+
+    private record InitialData(List<Destination> destinations, DatasetMetadata metadata, UserPreferences preferences) {
     }
 
     private static void showFatalStartupError(Stage stage, String message) {
