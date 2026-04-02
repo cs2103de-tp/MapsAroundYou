@@ -69,7 +69,6 @@ public final class MapsAroundYouGuiApp extends Application {
     private final TextField resultLimitField = new TextField();
     private final CheckBox excludeWalkDominantRoutesCheckBox = new CheckBox("No walk-dominant routes");
     private final Button searchButton = new Button("Search");
-    private final VBox maxWalkGroup = new VBox();
 
     private final TableView<SearchRow> resultsTable = new TableView<>();
     private final TableColumn<SearchRow, String> listingColumn = new TableColumn<>("Listing");
@@ -147,11 +146,11 @@ public final class MapsAroundYouGuiApp extends Application {
         resultLimitField.setPromptText("e.g. 10");
         resultLimitField.setMaxWidth(Double.MAX_VALUE);
 
-        maxWalkGroup.getChildren().setAll(createControlGroup("Max walking time (minutes)", maxWalkField));
-        maxWalkGroup.visibleProperty().bind(excludeWalkDominantRoutesCheckBox.selectedProperty());
-        maxWalkGroup.managedProperty().bind(maxWalkGroup.visibleProperty());
-
-        VBox walkingPreferenceGroup = new VBox(6, excludeWalkDominantRoutesCheckBox, maxWalkGroup);
+        VBox walkingPreferenceGroup = new VBox(
+                6,
+                createControlGroup("Max walking time (minutes)", maxWalkField),
+                excludeWalkDominantRoutesCheckBox
+        );
         walkingPreferenceGroup.setFillWidth(true);
 
         VBox form = new VBox(
@@ -311,6 +310,7 @@ public final class MapsAroundYouGuiApp extends Application {
         airconColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
         airconColumn.setMinWidth(AIRCON_COLUMN_MIN_WIDTH);
         airconColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(AIRCON_COLUMN_WIDTH_RATIO));
+        airconColumn.setSortable(false);
         airconColumn.setCellFactory(createCenteredCellFactory(item -> item ? "Yes" : "No"));
 
         matchColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getScore()));
@@ -562,6 +562,10 @@ public final class MapsAroundYouGuiApp extends Application {
         if (primaryColumn == commuteColumn) {
             return SortMode.COMMUTE;
         }
+        if (primaryColumn == matchColumn) {
+            return SortMode.BALANCED;
+        }
+        applyTableSort(SortMode.BALANCED);
         return SortMode.BALANCED;
     }
 

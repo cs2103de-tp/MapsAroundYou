@@ -30,9 +30,7 @@ public final class GuiSearchRequestParser {
         }
 
         int maxCommuteMinutes = parseInt(maxCommuteRaw, "Max commute", 1);
-        int maxWalkMinutes = excludeWalkDominantRoutes
-                ? parseInt(maxWalkRaw, "Max walk", 0)
-                : maxCommuteMinutes;
+        int maxWalkMinutes = parseInt(maxWalkRaw, "Max walk", 0);
 
         return new SearchRequest(
                 destination.destinationId(),

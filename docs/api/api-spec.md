@@ -51,7 +51,7 @@ These are used by Logic; not directly called by UI.
 - `COMMUTE`: lowest commute, then lowest rent, then `listingId`
 - `RENT`: lowest rent, then lowest commute, then `listingId`
 - `BALANCED`: highest score, then lowest commute, then lowest rent, then `listingId`
-- Score remains available for display: `1 - (0.6 * normalizedCommute + 0.4 * normalizedRent)`
+- Score remains available for display: `1 - (0.5 * normalizedCommute + 0.5 * normalizedRent)`
 
 ### RouteAnalyzer (V1.4)
 

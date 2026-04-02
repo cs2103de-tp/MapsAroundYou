@@ -37,19 +37,19 @@ class GuiSearchRequestParserTest {
     }
 
     @Test
-    void parse_walkPreferenceDisabled_usesCommuteLimitAsNeutralWalkLimit() {
+    void parse_walkPreferenceDisabled_keepsIndependentWalkLimit() {
         SearchRequest request = GuiSearchRequestParser.parse(
                 DESTINATION,
                 "2200",
                 "45",
-                "",
+                "12",
                 false,
                 "5",
                 SortMode.BALANCED,
                 false
         );
 
-        assertEquals(45, request.maxWalkMinutes());
+        assertEquals(12, request.maxWalkMinutes());
         assertEquals(false, request.excludeWalkDominantRoutes());
     }
 
