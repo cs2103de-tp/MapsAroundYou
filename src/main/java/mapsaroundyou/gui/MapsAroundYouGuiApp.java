@@ -42,6 +42,12 @@ public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_HEIGHT = 650;
     private static final int CONTROLS_PANEL_WIDTH = 460;
     private static final int CONTROLS_LABEL_WIDTH = 170;
+    private static final int RESULTS_TABLE_MIN_WIDTH = 650;
+    private static final int LISTING_COLUMN_WIDTH = 320;
+    private static final int RENT_COLUMN_WIDTH = 110;
+    private static final int COMMUTE_COLUMN_WIDTH = 110;
+    private static final int AIRCON_COLUMN_WIDTH = 85;
+    private static final int SCORE_COLUMN_WIDTH = 95;
 
     private GuiSearchService searchService;
 
@@ -180,28 +186,34 @@ public final class MapsAroundYouGuiApp extends Application {
     private VBox buildResultsTable() {
         resultsTable.setPlaceholder(new Label("No results yet. Set filters and click Search."));
         resultsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        resultsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        resultsTable.setMinWidth(RESULTS_TABLE_MIN_WIDTH);
 
-        TableColumn<SearchRow, String> titleCol = new TableColumn<>("Title");
+        TableColumn<SearchRow, String> titleCol = new TableColumn<>("Listing");
         titleCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTitle()));
-        titleCol.setMinWidth(220);
+        titleCol.setMinWidth(LISTING_COLUMN_WIDTH);
+        titleCol.setPrefWidth(LISTING_COLUMN_WIDTH);
 
-        TableColumn<SearchRow, Integer> rentCol = new TableColumn<>("Rent");
+        TableColumn<SearchRow, Integer> rentCol = new TableColumn<>("Rent (SGD)");
         rentCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getMonthlyRent()));
-        rentCol.setMaxWidth(120);
+        rentCol.setMinWidth(RENT_COLUMN_WIDTH);
+        rentCol.setPrefWidth(RENT_COLUMN_WIDTH);
 
-        TableColumn<SearchRow, Integer> commuteCol = new TableColumn<>("Commute (min)");
+        TableColumn<SearchRow, Integer> commuteCol = new TableColumn<>("Commute");
         commuteCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTotalCommuteMinutes()));
-        commuteCol.setMaxWidth(150);
+        commuteCol.setMinWidth(COMMUTE_COLUMN_WIDTH);
+        commuteCol.setPrefWidth(COMMUTE_COLUMN_WIDTH);
 
-        TableColumn<SearchRow, Boolean> airconCol = new TableColumn<>("Aircon");
+        TableColumn<SearchRow, Boolean> airconCol = new TableColumn<>("A/C");
         airconCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
-        airconCol.setMaxWidth(100);
+        airconCol.setMinWidth(AIRCON_COLUMN_WIDTH);
+        airconCol.setPrefWidth(AIRCON_COLUMN_WIDTH);
 
-        TableColumn<SearchRow, String> scoreCol = new TableColumn<>("Score");
+        TableColumn<SearchRow, String> scoreCol = new TableColumn<>("Match");
         scoreCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
                 String.format("%.3f", cell.getValue().getScore())));
-        scoreCol.setMaxWidth(120);
+        scoreCol.setMinWidth(SCORE_COLUMN_WIDTH);
+        scoreCol.setPrefWidth(SCORE_COLUMN_WIDTH);
 
         resultsTable.getColumns().add(titleCol);
         resultsTable.getColumns().add(rentCol);
