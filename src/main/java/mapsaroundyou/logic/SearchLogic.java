@@ -17,7 +17,13 @@ public interface SearchLogic {
 
     void setDestination(String destinationId);
 
-    void setPreferences(int maxRent, int maxCommuteMinutes, boolean requireAircon, TransportMode transportMode);
+        void setPreferences(
+            int maxRent,
+            int maxCommuteMinutes,
+            int maxTransfers,
+            boolean requireAircon,
+            TransportMode transportMode
+        );
 
     List<SearchResult> generateShortlist();
 

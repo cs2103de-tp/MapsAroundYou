@@ -1,13 +1,13 @@
 package mapsaroundyou.gui;
 
+import java.util.List;
+import java.util.Objects;
+
 import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 import mapsaroundyou.model.SearchResult;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Thin GUI-facing facade that hides the stateful {@link SearchLogic} call order.
@@ -33,6 +33,7 @@ public final class GuiSearchService {
         searchLogic.setPreferences(
                 request.maxRent(),
                 request.maxCommuteMinutes(),
+                request.maxTransfers(),
                 request.requireAircon(),
                 request.transportMode()
         );

@@ -75,12 +75,14 @@ public final class CliApplication {
                 try {
                     int maxRent = parseInteger(prompt(scanner, "Max rent (SGD)"), "Max rent");
                     int maxCommute = parseInteger(prompt(scanner, "Max commute (minutes)"), "Max commute");
+                        int maxTransfers = parseInteger(prompt(scanner, "Max transfers"), "Max transfers");
                     boolean requireAircon = parseYesNo(prompt(scanner, "Require aircon? [y/N]"));
 
                     SearchCommandArguments arguments = new SearchCommandArguments(
                             destinationId,
                             maxRent,
                             maxCommute,
+                            maxTransfers,
                             requireAircon
                     );
                     runSearch(arguments);
@@ -105,6 +107,7 @@ public final class CliApplication {
         searchLogic.setPreferences(
                 arguments.maxRent(),
                 arguments.maxCommuteMinutes(),
+            arguments.maxTransfers(),
                 arguments.requireAircon(),
                 TransportMode.PUBLIC_TRANSPORT
         );
