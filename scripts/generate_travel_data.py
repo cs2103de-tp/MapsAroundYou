@@ -1,19 +1,14 @@
 import csv
 import os
 import time
+import argparse
 from pathlib import Path
 
 import requests
 
 
 ONEMAP_TOKEN = os.getenv("ONEMAP_TOKEN")
-if not ONEMAP_TOKEN:
-    raise RuntimeError(
-        "ONEMAP_TOKEN environment variable is not set. "
-        "Generate a fresh token and export it before running this script."
-    )
-
-HEADERS = {"Authorization": ONEMAP_TOKEN}
+HEADERS = {"Authorization": ONEMAP_TOKEN} if ONEMAP_TOKEN else {}
 RATE_LIMIT_DELAY = 0.2
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "src" / "main" / "resources" / "commute_data"
@@ -21,6 +16,19 @@ DEST_FILE = DATA_DIR / "Dst_List.csv"
 ORIGIN_NODES_FILE = DATA_DIR / "origin_nodes.csv"
 OUTPUT_CSV = DATA_DIR / "transit_matrix.csv"
 last_request_time = 0.0
+
+
+def configure_auth_headers(token: str | None = None) -> None:
+    """Configure auth headers and fail only when execution actually needs them."""
+    selected_token = token or os.getenv("ONEMAP_TOKEN")
+    if not selected_token:
+        raise RuntimeError(
+            "ONEMAP_TOKEN environment variable is not set. "
+            "Generate a fresh token and export it before running this script."
+        )
+
+    global HEADERS
+    HEADERS = {"Authorization": selected_token}
 
 
 def enforce_rate_limit():
@@ -152,6 +160,8 @@ def get_drive_walk_cycle_route(start_coords, end_coords, route_type):
 
 
 def generate_matrix():
+    configure_auth_headers()
+
     dest_coords_map = {}
     print(f"Translating destination postal codes from {DEST_FILE}...")
 
@@ -228,4 +238,11 @@ def generate_matrix():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate transit_matrix.csv from origin_nodes.csv and Dst_List.csv "
+            "using OneMap APIs."
+        )
+    )
+    parser.parse_args()
     generate_matrix()

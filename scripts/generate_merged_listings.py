@@ -17,64 +17,102 @@ DEFAULT_NEW_ORIGIN_COUNT = 6
 DEFAULT_LISTINGS_PER_ORIGIN = 4
 DEFAULT_SEED = 2103
 
-        RENTAL_HEADERS = ["Flat_ID", "Postal_Code", "Region", "Area_Name"]
-        LISTING_HEADERS = [
-            "listingId",
-            "title",
-            "monthlyRent",
-            "hasAircon",
-            "originNodeId",
-            "address",
-            "roomType",
-            "sourcePlatform",
-            "notes",
-        ]
-        TRANSIT_HEADERS = [
-            "flat_id",
-            "destination_id",
-            "pt_total",
-            "pt_walk",
-            "pt_bus",
-            "pt_rail",
-            "pt_transit",
-            "pt_fare",
-            "drive_total",
-            "cycle_total",
-            "walk_total",
-        ]
+RENTAL_HEADERS = ["Flat_ID", "Postal_Code", "Region", "Area_Name"]
+LISTING_HEADERS = [
+    "listingId",
+    "title",
+    "monthlyRent",
+    "hasAircon",
+    "originNodeId",
+    "address",
+    "roomType",
+    "sourcePlatform",
+    "notes",
+]
+TRANSIT_HEADERS = [
+    "flat_id",
+    "destination_id",
+    "pt_total",
+    "pt_walk",
+    "pt_bus",
+    "pt_rail",
+    "pt_transit",
+    "pt_fare",
+    "drive_total",
+    "cycle_total",
+    "walk_total",
+]
 
 
-        class _ListingProfilesByHousing(dict):
-            """
-            A mapping from housing type to a list of listing profiles.
+HEADERS = LISTING_HEADERS
 
-            Internally stores indices into LISTING_PROFILES so that LISTING_PROFILES
-            does not need to be defined at module import time. When accessed via
-            __getitem__, the indices are resolved to actual profile objects.
-            """
+LISTING_PROFILES = [
+    {
+        "room_types": ["Singleroom", "Shared room", "Common room"],
+        "rent_range": (950, 1450),
+        "aircon_probability": 0.68,
+        "note_pool": [
+            "Affordable option",
+            "Good value option",
+            "Student-friendly budget",
+            "Convenient bus access",
+        ],
+    },
+    {
+        "room_types": ["HDB room", "Common room", "Private room"],
+        "rent_range": (1350, 1900),
+        "aircon_probability": 0.8,
+        "note_pool": [
+            "Curated demo listing",
+            "Near central amenities",
+            "Quiet neighborhood",
+            "Walkable to town center",
+        ],
+    },
+    {
+        "room_types": ["Condo room", "Private room", "HDB room"],
+        "rent_range": (1750, 2500),
+        "aircon_probability": 0.92,
+        "note_pool": [
+            "Premium central option",
+            "Higher rent but newer estate",
+            "Good city access",
+            "Popular for east workers",
+        ],
+    },
+    {
+        "room_types": ["Shared room", "Common room", "Singleroom"],
+        "rent_range": (1100, 1700),
+        "aircon_probability": 0.74,
+        "note_pool": [
+            "Simple central listing",
+            "Popular with interns",
+            "Practical weekday commute",
+            "Balanced price and access",
+        ],
+    },
+]
 
-            def __getitem__(self, key):
-                indices = super().__getitem__(key)
-                # Resolve stored indices to actual profiles at access time.
-                return [LISTING_PROFILES[i] for i in indices]
+LISTING_PROFILES_BY_HOUSING = {
+    "HDB": [LISTING_PROFILES[0], LISTING_PROFILES[3]],
+    "CONDO": [LISTING_PROFILES[2]],
+}
 
+TITLE_ADJECTIVES = [
+    "City-fringe",
+    "Quiet stay near",
+    "Budget",
+    "Studio-style",
+    "Central",
+    "Premium",
+    "Breezy",
+    "Cozy",
+    "Spacious",
+    "Well-connected",
+    "Accessible",
+    "Modern",
+]
 
-        HEADERS = LISTING_HEADERS
-
-        LISTING_PROFILES_BY_HOUSING = _ListingProfilesByHousing(
-            {
-                "HDB": [0, 3],
-                "CONDO": [2],
-
-            "Central",
-            "Premium",
-            "Breezy",
-            "Cozy",
-            "Spacious",
-            "Well-connected",
-            "Accessible",
-            "Modern",
-        ]
 SOURCE_PLATFORMS = ["PropertyGuru", "99.co", "SRX", "PropertyLimBrothers"]
 
 # Rail share model for PT allocation:
