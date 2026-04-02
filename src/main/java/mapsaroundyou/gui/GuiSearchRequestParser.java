@@ -25,7 +25,9 @@ public final class GuiSearchRequestParser {
             boolean excludeWalkDominantRoutes
     ) {
         Objects.requireNonNull(destination, "destination");
-        Objects.requireNonNull(sortMode, "sortMode");
+        if (sortMode == null) {
+            throw new InvalidInputException("Sort mode is required.");
+        }
 
         int maxCommuteMinutes = parseInt(maxCommuteRaw, "Max commute", 1);
         int maxWalkMinutes = excludeWalkDominantRoutes

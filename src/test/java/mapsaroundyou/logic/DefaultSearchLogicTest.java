@@ -1,5 +1,6 @@
 package mapsaroundyou.logic;
 
+import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.CommuteEstimate;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
@@ -173,17 +174,22 @@ class DefaultSearchLogicTest {
     void updatePreferences_rejectsInvalidResultLimit() {
         DefaultSearchLogic logic = createLogic(List.of(), Map.of());
 
-        assertThrows(RuntimeException.class, () -> logic.updatePreferences(new UserPreferences(
-                "D01",
-                2000,
-                45,
-                10,
-                false,
-                TransportMode.PUBLIC_TRANSPORT,
-                0,
-                SortMode.COMMUTE,
-                false
-        )));
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
+                () -> logic.updatePreferences(new UserPreferences(
+                        "D01",
+                        2000,
+                        45,
+                        10,
+                        false,
+                        TransportMode.PUBLIC_TRANSPORT,
+                        0,
+                        SortMode.COMMUTE,
+                        false
+                ))
+        );
+
+        assertEquals("Result limit must be at least 1.", exception.getMessage());
     }
 
     private static DefaultSearchLogic createLogic(

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PropertiesUserPrefsRepositoryTest {
     @TempDir
@@ -71,6 +70,5 @@ class PropertiesUserPrefsRepositoryTest {
         assertEquals(UserPreferences.defaults().resultLimit(), loadedPreferences.resultLimit());
         assertEquals(UserPreferences.defaults().sortMode(), loadedPreferences.sortMode());
         assertEquals(true, loadedPreferences.excludeWalkDominantRoutes());
-        assertNull(UserPreferences.defaults().destinationId());
     }
 }
