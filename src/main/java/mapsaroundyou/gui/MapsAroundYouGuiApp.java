@@ -18,6 +18,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -39,6 +40,8 @@ import java.util.Objects;
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1100;
     private static final int MIN_HEIGHT = 650;
+    private static final int CONTROLS_PANEL_WIDTH = 460;
+    private static final int CONTROLS_LABEL_WIDTH = 170;
 
     private GuiSearchService searchService;
 
@@ -108,8 +111,8 @@ public final class MapsAroundYouGuiApp extends Application {
 
     private VBox buildControls() {
         Label destinationLabel = new Label("Destination");
-        destinationComboBox.setPrefWidth(280);
         destinationComboBox.setTooltip(new Tooltip("Choose a supported destination"));
+        destinationComboBox.setMaxWidth(Double.MAX_VALUE);
 
         maxRentField.setPromptText("e.g. 1800");
         maxCommuteField.setPromptText("e.g. 45");
@@ -121,6 +124,10 @@ public final class MapsAroundYouGuiApp extends Application {
         GridPane form = new GridPane();
         form.setHgap(8);
         form.setVgap(8);
+        form.getColumnConstraints().addAll(
+                createLabelColumn(),
+                createInputColumn()
+        );
 
         int row = 0;
         form.add(destinationLabel, 0, row);
@@ -151,8 +158,23 @@ public final class MapsAroundYouGuiApp extends Application {
 
         VBox box = new VBox(10, form, searchButton);
         box.setPadding(new Insets(0, 12, 0, 0));
-        box.setPrefWidth(360);
+        box.setPrefWidth(CONTROLS_PANEL_WIDTH);
+        box.setMinWidth(CONTROLS_PANEL_WIDTH);
         return box;
+    }
+
+    private static ColumnConstraints createLabelColumn() {
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(CONTROLS_LABEL_WIDTH);
+        labelColumn.setPrefWidth(CONTROLS_LABEL_WIDTH);
+        return labelColumn;
+    }
+
+    private static ColumnConstraints createInputColumn() {
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setHgrow(Priority.ALWAYS);
+        inputColumn.setFillWidth(true);
+        return inputColumn;
     }
 
     private VBox buildResultsTable() {
