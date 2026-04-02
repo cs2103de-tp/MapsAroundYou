@@ -10,6 +10,9 @@ import java.util.List;
  * Produces deterministic ranking for shortlisted results.
  */
 public class ListingRanker {
+    private static final double COMMUTE_SCORE_WEIGHT = 0.5d;
+    private static final double RENT_SCORE_WEIGHT = 0.5d;
+
     private static final Comparator<SearchResult> COMMUTE_COMPARATOR = Comparator
             .comparingInt((SearchResult result) -> result.commute().totalMinutes())
             .thenComparingInt(result -> result.listing().monthlyRent())
@@ -39,7 +42,8 @@ public class ListingRanker {
     public double computeScore(SearchResult result, int maxRent, int maxCommuteMinutes) {
         double normalizedCommute = (double) result.commute().totalMinutes() / maxCommuteMinutes;
         double normalizedRent = (double) result.listing().monthlyRent() / maxRent;
-        double rawScore = 1.0d - ((0.6d * normalizedCommute) + (0.4d * normalizedRent));
+        double rawScore = 1.0d - ((COMMUTE_SCORE_WEIGHT * normalizedCommute)
+                + (RENT_SCORE_WEIGHT * normalizedRent));
         return Math.max(0.0d, rawScore);
     }
 }

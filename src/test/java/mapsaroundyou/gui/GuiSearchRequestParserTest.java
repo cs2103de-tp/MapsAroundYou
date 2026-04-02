@@ -37,6 +37,23 @@ class GuiSearchRequestParserTest {
     }
 
     @Test
+    void parse_walkPreferenceDisabled_usesCommuteLimitAsNeutralWalkLimit() {
+        SearchRequest request = GuiSearchRequestParser.parse(
+                DESTINATION,
+                "2200",
+                "45",
+                "",
+                false,
+                "5",
+                SortMode.BALANCED,
+                false
+        );
+
+        assertEquals(45, request.maxWalkMinutes());
+        assertEquals(false, request.excludeWalkDominantRoutes());
+    }
+
+    @Test
     void parse_negativeRent_throwsInvalidInputException() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,

@@ -27,11 +27,16 @@ public final class GuiSearchRequestParser {
         Objects.requireNonNull(destination, "destination");
         Objects.requireNonNull(sortMode, "sortMode");
 
+        int maxCommuteMinutes = parseInt(maxCommuteRaw, "Max commute", 1);
+        int maxWalkMinutes = excludeWalkDominantRoutes
+                ? parseInt(maxWalkRaw, "Max walk", 0)
+                : maxCommuteMinutes;
+
         return new SearchRequest(
                 destination.destinationId(),
                 parseInt(maxRentRaw, "Max rent", 0),
-                parseInt(maxCommuteRaw, "Max commute", 1),
-                parseInt(maxWalkRaw, "Max walk", 0),
+                maxCommuteMinutes,
+                maxWalkMinutes,
                 requireAircon,
                 TransportMode.PUBLIC_TRANSPORT,
                 parseInt(resultLimitRaw, "Result limit", 1),

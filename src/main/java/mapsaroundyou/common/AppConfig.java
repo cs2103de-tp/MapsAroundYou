@@ -21,7 +21,7 @@ public final class AppConfig {
     public static final int DEFAULT_RESULT_LIMIT = 10;
     public static final double DEFAULT_WALK_DOMINANT_THRESHOLD = 0.6d;
     public static final TransportMode DEFAULT_TRANSPORT_MODE = TransportMode.PUBLIC_TRANSPORT;
-    public static final SortMode DEFAULT_SORT_MODE = SortMode.COMMUTE;
+    public static final SortMode DEFAULT_SORT_MODE = SortMode.BALANCED;
 
     private AppConfig() {
     }

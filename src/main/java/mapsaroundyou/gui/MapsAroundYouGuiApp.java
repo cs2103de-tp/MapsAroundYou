@@ -6,14 +6,15 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -42,7 +43,7 @@ import java.util.Objects;
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1000;
     private static final int MIN_HEIGHT = 600;
-    private static final int CONTROLS_PANEL_WIDTH = 340;
+    private static final int CONTROLS_PANEL_WIDTH = 320;
     private static final int RESULTS_TABLE_MIN_WIDTH = 600;
     private static final int LISTING_COLUMN_WIDTH = 260;
     private static final int RENT_COLUMN_WIDTH = 95;
@@ -60,12 +61,17 @@ public final class MapsAroundYouGuiApp extends Application {
     private final TextField maxWalkField = new TextField();
     private final CheckBox requireAirconCheckBox = new CheckBox("Require aircon");
     private final TextField resultLimitField = new TextField();
-    private final ComboBox<SortMode> sortModeComboBox = new ComboBox<>();
-    private final CheckBox excludeWalkDominantRoutesCheckBox = new CheckBox("Exclude walk-dominant routes");
+    private final CheckBox excludeWalkDominantRoutesCheckBox = new CheckBox("No walk-dominant routes");
     private final Button searchButton = new Button("Search");
+    private final VBox maxWalkGroup = new VBox();
 
     private final TableView<SearchRow> resultsTable = new TableView<>();
-    private final Label statusLabel = new Label("Ready.");
+    private final TableColumn<SearchRow, String> listingColumn = new TableColumn<>("Listing");
+    private final TableColumn<SearchRow, Number> rentColumn = new TableColumn<>("Rent (SGD)");
+    private final TableColumn<SearchRow, Number> commuteColumn = new TableColumn<>("Commute");
+    private final TableColumn<SearchRow, Boolean> airconColumn = new TableColumn<>("A/C");
+    private final TableColumn<SearchRow, Number> matchColumn = new TableColumn<>("Match");
+    private final Label statusLabel = new Label("App status: Ready.");
     private final ProgressIndicator loadingIndicator = new ProgressIndicator();
     private final Label datasetLabel = new Label();
 
@@ -129,20 +135,22 @@ public final class MapsAroundYouGuiApp extends Application {
         maxWalkField.setMaxWidth(Double.MAX_VALUE);
         resultLimitField.setPromptText("e.g. 10");
         resultLimitField.setMaxWidth(Double.MAX_VALUE);
-        sortModeComboBox.setItems(FXCollections.observableArrayList(SortMode.values()));
-        sortModeComboBox.getSelectionModel().select(SortMode.COMMUTE);
-        sortModeComboBox.setMaxWidth(Double.MAX_VALUE);
+
+        maxWalkGroup.getChildren().setAll(createControlGroup("Max walking time (minutes)", maxWalkField));
+        maxWalkGroup.visibleProperty().bind(excludeWalkDominantRoutesCheckBox.selectedProperty());
+        maxWalkGroup.managedProperty().bind(maxWalkGroup.visibleProperty());
+
+        VBox walkingPreferenceGroup = new VBox(6, excludeWalkDominantRoutesCheckBox, maxWalkGroup);
+        walkingPreferenceGroup.setFillWidth(true);
 
         VBox form = new VBox(
                 10,
                 createControlGroup("Destination", destinationComboBox),
                 createControlGroup("Max rent (SGD)", maxRentField),
                 createControlGroup("Max commute (minutes)", maxCommuteField),
-                createControlGroup("Max walking time (minutes)", maxWalkField),
                 createControlGroup("Aircon", requireAirconCheckBox),
                 createControlGroup("Result limit", resultLimitField),
-                createControlGroup("Sort mode", sortModeComboBox),
-                createControlGroup("Route quality", excludeWalkDominantRoutesCheckBox)
+                createControlGroup("Walking preference", walkingPreferenceGroup)
         );
 
         searchButton.setDefaultButton(true);
@@ -152,17 +160,19 @@ public final class MapsAroundYouGuiApp extends Application {
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         VBox box = new VBox(10, form, spacer, searchButton);
-        box.setPadding(new Insets(0, 12, 0, 0));
+        box.setPadding(new Insets(8, 20, 8, 8));
         box.setPrefWidth(CONTROLS_PANEL_WIDTH);
         box.setMinWidth(CONTROLS_PANEL_WIDTH);
         box.setFillWidth(true);
         return box;
     }
 
-    private static VBox createControlGroup(String labelText, Control control) {
+    private static VBox createControlGroup(String labelText, Node content) {
         Label label = new Label(labelText);
-        control.setMaxWidth(Double.MAX_VALUE);
-        VBox group = new VBox(4, label, control);
+        if (content instanceof Region region) {
+            region.setMaxWidth(Double.MAX_VALUE);
+        }
+        VBox group = new VBox(4, label, content);
         group.setFillWidth(true);
         return group;
     }
@@ -172,38 +182,14 @@ public final class MapsAroundYouGuiApp extends Application {
         resultsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         resultsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         resultsTable.setMinWidth(RESULTS_TABLE_MIN_WIDTH);
-
-        TableColumn<SearchRow, String> titleCol = new TableColumn<>("Listing");
-        titleCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTitle()));
-        titleCol.setMinWidth(LISTING_COLUMN_WIDTH);
-        titleCol.setPrefWidth(LISTING_COLUMN_WIDTH);
-
-        TableColumn<SearchRow, Integer> rentCol = new TableColumn<>("Rent (SGD)");
-        rentCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getMonthlyRent()));
-        rentCol.setMinWidth(RENT_COLUMN_WIDTH);
-        rentCol.setPrefWidth(RENT_COLUMN_WIDTH);
-
-        TableColumn<SearchRow, Integer> commuteCol = new TableColumn<>("Commute");
-        commuteCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTotalCommuteMinutes()));
-        commuteCol.setMinWidth(COMMUTE_COLUMN_WIDTH);
-        commuteCol.setPrefWidth(COMMUTE_COLUMN_WIDTH);
-
-        TableColumn<SearchRow, Boolean> airconCol = new TableColumn<>("A/C");
-        airconCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
-        airconCol.setMinWidth(AIRCON_COLUMN_WIDTH);
-        airconCol.setPrefWidth(AIRCON_COLUMN_WIDTH);
-
-        TableColumn<SearchRow, String> scoreCol = new TableColumn<>("Match");
-        scoreCol.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(
-                String.format("%.3f", cell.getValue().getScore())));
-        scoreCol.setMinWidth(SCORE_COLUMN_WIDTH);
-        scoreCol.setPrefWidth(SCORE_COLUMN_WIDTH);
-
-        resultsTable.getColumns().add(titleCol);
-        resultsTable.getColumns().add(rentCol);
-        resultsTable.getColumns().add(commuteCol);
-        resultsTable.getColumns().add(airconCol);
-        resultsTable.getColumns().add(scoreCol);
+        configureTableColumns();
+        resultsTable.getColumns().setAll(List.of(
+                listingColumn,
+                rentColumn,
+                commuteColumn,
+                airconColumn,
+                matchColumn
+        ));
 
         VBox box = new VBox(resultsTable);
         VBox.setVgrow(resultsTable, Priority.ALWAYS);
@@ -292,6 +278,56 @@ public final class MapsAroundYouGuiApp extends Application {
         return bar;
     }
 
+    private void configureTableColumns() {
+        listingColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTitle()));
+        listingColumn.setMinWidth(LISTING_COLUMN_WIDTH);
+        listingColumn.setPrefWidth(LISTING_COLUMN_WIDTH);
+        listingColumn.setSortable(false);
+
+        rentColumn.setCellValueFactory(
+                cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getMonthlyRent())
+        );
+        rentColumn.setMinWidth(RENT_COLUMN_WIDTH);
+        rentColumn.setPrefWidth(RENT_COLUMN_WIDTH);
+
+        commuteColumn.setCellValueFactory(
+                cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTotalCommuteMinutes())
+        );
+        commuteColumn.setMinWidth(COMMUTE_COLUMN_WIDTH);
+        commuteColumn.setPrefWidth(COMMUTE_COLUMN_WIDTH);
+
+        airconColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
+        airconColumn.setMinWidth(AIRCON_COLUMN_WIDTH);
+        airconColumn.setPrefWidth(AIRCON_COLUMN_WIDTH);
+        airconColumn.setSortable(false);
+        airconColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    return;
+                }
+                setText(item ? "Yes" : "No");
+            }
+        });
+
+        matchColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getScore()));
+        matchColumn.setMinWidth(SCORE_COLUMN_WIDTH);
+        matchColumn.setPrefWidth(SCORE_COLUMN_WIDTH);
+        matchColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    return;
+                }
+                setText(String.format("%.3f", item.doubleValue()));
+            }
+        });
+    }
+
     private void configureInteractions() {
         destinationComboBox.setConverter(new javafx.util.StringConverter<>() {
             @Override
@@ -306,6 +342,7 @@ public final class MapsAroundYouGuiApp extends Application {
         });
 
         searchButton.setOnAction(event -> runSearch());
+        resultsTable.setOnSort(event -> rememberCurrentSortMode());
 
         resultsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
@@ -365,7 +402,7 @@ public final class MapsAroundYouGuiApp extends Application {
                     maxWalkField.getText(),
                     requireAirconCheckBox.isSelected(),
                     resultLimitField.getText(),
-                    sortModeComboBox.getValue(),
+                    currentTableSortMode(),
                     excludeWalkDominantRoutesCheckBox.isSelected()
             );
         } catch (InvalidInputException exception) {
@@ -390,6 +427,7 @@ public final class MapsAroundYouGuiApp extends Application {
             resultsTable.setItems(FXCollections.observableArrayList(
                     response.results().stream().map(SearchRow::new).toList()
             ));
+            resultsTable.sort();
             if (!resultsTable.getItems().isEmpty()) {
                 resultsTable.getSelectionModel().select(0);
             }
@@ -445,7 +483,6 @@ public final class MapsAroundYouGuiApp extends Application {
         maxWalkField.setDisable(busy);
         requireAirconCheckBox.setDisable(busy);
         resultLimitField.setDisable(busy);
-        sortModeComboBox.setDisable(busy);
         excludeWalkDominantRoutesCheckBox.setDisable(busy);
         searchButton.setDisable(busy);
         resultsTable.setDisable(busy);
@@ -453,7 +490,11 @@ public final class MapsAroundYouGuiApp extends Application {
     }
 
     private void setStatus(String message) {
-        statusLabel.setText(message == null || message.isBlank() ? " " : message);
+        if (message == null || message.isBlank()) {
+            statusLabel.setText("App status: ");
+            return;
+        }
+        statusLabel.setText("App status: " + message);
     }
 
     static Destination resolveInitialDestination(List<Destination> destinations, UserPreferences preferences) {
@@ -478,8 +519,48 @@ public final class MapsAroundYouGuiApp extends Application {
         maxWalkField.setText(Integer.toString(resolvedPreferences.maxWalkMinutes()));
         requireAirconCheckBox.setSelected(resolvedPreferences.requireAircon());
         resultLimitField.setText(Integer.toString(resolvedPreferences.resultLimit()));
-        sortModeComboBox.getSelectionModel().select(resolvedPreferences.sortMode());
         excludeWalkDominantRoutesCheckBox.setSelected(resolvedPreferences.excludeWalkDominantRoutes());
+        applyTableSort(resolvedPreferences.sortMode());
+    }
+
+    private void applyTableSort(SortMode sortMode) {
+        SortMode resolvedSortMode = sortMode == null ? SortMode.BALANCED : sortMode;
+        switch (resolvedSortMode) {
+        case RENT -> {
+            rentColumn.setSortType(TableColumn.SortType.ASCENDING);
+            resultsTable.getSortOrder().setAll(List.of(rentColumn));
+        }
+        case COMMUTE -> {
+            commuteColumn.setSortType(TableColumn.SortType.ASCENDING);
+            resultsTable.getSortOrder().setAll(List.of(commuteColumn));
+        }
+        case BALANCED -> {
+            matchColumn.setSortType(TableColumn.SortType.DESCENDING);
+            resultsTable.getSortOrder().setAll(List.of(matchColumn));
+        }
+        default -> throw new IllegalStateException("Unsupported sort mode: " + resolvedSortMode);
+        }
+    }
+
+    private SortMode currentTableSortMode() {
+        if (resultsTable.getSortOrder().isEmpty()) {
+            return SortMode.BALANCED;
+        }
+
+        TableColumn<SearchRow, ?> primaryColumn = resultsTable.getSortOrder().getFirst();
+        if (primaryColumn == rentColumn) {
+            return SortMode.RENT;
+        }
+        if (primaryColumn == commuteColumn) {
+            return SortMode.COMMUTE;
+        }
+        return SortMode.BALANCED;
+    }
+
+    private void rememberCurrentSortMode() {
+        if (resultsTable.getSortOrder().isEmpty()) {
+            applyTableSort(SortMode.BALANCED);
+        }
     }
 
     private record InitialData(List<Destination> destinations, DatasetMetadata metadata, UserPreferences preferences) {
