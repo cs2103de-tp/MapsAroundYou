@@ -1,0 +1,54 @@
+.root {
+    -fx-base: #1e1e1e;
+    -fx-background: #1e1e1e;
+    -fx-control-inner-background: #262626;
+    -fx-text-fill: #e6e6e6;
+}
+
+.label,
+.text,
+.check-box .box,
+.table-view .column-header,
+.table-view .label,
+.text-field,
+.combo-box-base,
+.button {
+    -fx-text-fill: #e6e6e6;
+}
+
+.text-field {
+    -fx-control-inner-background: #262626;
+    -fx-background-color: #262626;
+    -fx-text-fill: #e6e6e6;
+}
+
+.combo-box-base,
+.combo-box-popup .list-view,
+.combo-box .list-cell {
+    -fx-control-inner-background: #262626;
+    -fx-background-color: #262626;
+    -fx-text-fill: #e6e6e6;
+}
+
+.check-box {
+    -fx-text-fill: #e6e6e6;
+}
+
+.button {
+    -fx-background-color: #2d2d2d;
+    -fx-text-fill: #e6e6e6;
+}
+
+.table-view {
+    -fx-control-inner-background: #262626;
+    -fx-background-color: #262626;
+}
+
+.table-row-cell {
+    -fx-background-color: #262626;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #242424;
+}
+
