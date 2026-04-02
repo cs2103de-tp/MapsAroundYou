@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
@@ -22,6 +23,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -38,16 +40,17 @@ import java.util.List;
 import java.util.Objects;
 
 public final class MapsAroundYouGuiApp extends Application {
-    private static final int MIN_WIDTH = 1100;
-    private static final int MIN_HEIGHT = 650;
-    private static final int CONTROLS_PANEL_WIDTH = 460;
-    private static final int CONTROLS_LABEL_WIDTH = 170;
-    private static final int RESULTS_TABLE_MIN_WIDTH = 650;
-    private static final int LISTING_COLUMN_WIDTH = 320;
-    private static final int RENT_COLUMN_WIDTH = 110;
-    private static final int COMMUTE_COLUMN_WIDTH = 110;
-    private static final int AIRCON_COLUMN_WIDTH = 85;
-    private static final int SCORE_COLUMN_WIDTH = 95;
+    private static final int MIN_WIDTH = 1000;
+    private static final int MIN_HEIGHT = 600;
+    private static final int CONTROLS_PANEL_WIDTH = 340;
+    private static final int RESULTS_TABLE_MIN_WIDTH = 600;
+    private static final int LISTING_COLUMN_WIDTH = 260;
+    private static final int RENT_COLUMN_WIDTH = 95;
+    private static final int COMMUTE_COLUMN_WIDTH = 95;
+    private static final int AIRCON_COLUMN_WIDTH = 70;
+    private static final int SCORE_COLUMN_WIDTH = 80;
+    private static final int DETAILS_PANEL_HEIGHT = 165;
+    private static final int DETAILS_LABEL_WIDTH = 72;
 
     private GuiSearchService searchService;
 
@@ -89,8 +92,7 @@ public final class MapsAroundYouGuiApp extends Application {
         root.setPadding(new Insets(12));
         root.setTop(buildHeader());
         root.setLeft(buildControls());
-        root.setCenter(buildResultsTable());
-        root.setRight(buildDetailsPanel());
+        root.setCenter(buildContentArea());
         root.setBottom(buildStatusBar());
 
         Scene scene = new Scene(root, MIN_WIDTH, MIN_HEIGHT);
@@ -116,71 +118,53 @@ public final class MapsAroundYouGuiApp extends Application {
     }
 
     private VBox buildControls() {
-        Label destinationLabel = new Label("Destination");
         destinationComboBox.setTooltip(new Tooltip("Choose a supported destination"));
         destinationComboBox.setMaxWidth(Double.MAX_VALUE);
 
         maxRentField.setPromptText("e.g. 1800");
+        maxRentField.setMaxWidth(Double.MAX_VALUE);
         maxCommuteField.setPromptText("e.g. 45");
+        maxCommuteField.setMaxWidth(Double.MAX_VALUE);
         maxWalkField.setPromptText("e.g. 10");
+        maxWalkField.setMaxWidth(Double.MAX_VALUE);
         resultLimitField.setPromptText("e.g. 10");
+        resultLimitField.setMaxWidth(Double.MAX_VALUE);
         sortModeComboBox.setItems(FXCollections.observableArrayList(SortMode.values()));
         sortModeComboBox.getSelectionModel().select(SortMode.COMMUTE);
+        sortModeComboBox.setMaxWidth(Double.MAX_VALUE);
 
-        GridPane form = new GridPane();
-        form.setHgap(8);
-        form.setVgap(8);
-        form.getColumnConstraints().addAll(
-                createLabelColumn(),
-                createInputColumn()
+        VBox form = new VBox(
+                10,
+                createControlGroup("Destination", destinationComboBox),
+                createControlGroup("Max rent (SGD)", maxRentField),
+                createControlGroup("Max commute (minutes)", maxCommuteField),
+                createControlGroup("Max walking time (minutes)", maxWalkField),
+                createControlGroup("Aircon", requireAirconCheckBox),
+                createControlGroup("Result limit", resultLimitField),
+                createControlGroup("Sort mode", sortModeComboBox),
+                createControlGroup("Route quality", excludeWalkDominantRoutesCheckBox)
         );
 
-        int row = 0;
-        form.add(destinationLabel, 0, row);
-        form.add(destinationComboBox, 1, row++);
-
-        form.add(new Label("Max rent (SGD)"), 0, row);
-        form.add(maxRentField, 1, row++);
-
-        form.add(new Label("Max commute (minutes)"), 0, row);
-        form.add(maxCommuteField, 1, row++);
-
-        form.add(new Label("Max walking time (minutes)"), 0, row);
-        form.add(maxWalkField, 1, row++);
-
-        form.add(new Label("Aircon"), 0, row);
-        form.add(requireAirconCheckBox, 1, row++);
-
-        form.add(new Label("Result limit"), 0, row);
-        form.add(resultLimitField, 1, row++);
-
-        form.add(new Label("Sort mode"), 0, row);
-        form.add(sortModeComboBox, 1, row++);
-
-        form.add(new Label("Route quality"), 0, row);
-        form.add(excludeWalkDominantRoutesCheckBox, 1, row++);
-
         searchButton.setDefaultButton(true);
+        searchButton.setMaxWidth(Double.MAX_VALUE);
 
-        VBox box = new VBox(10, form, searchButton);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        VBox box = new VBox(10, form, spacer, searchButton);
         box.setPadding(new Insets(0, 12, 0, 0));
         box.setPrefWidth(CONTROLS_PANEL_WIDTH);
         box.setMinWidth(CONTROLS_PANEL_WIDTH);
+        box.setFillWidth(true);
         return box;
     }
 
-    private static ColumnConstraints createLabelColumn() {
-        ColumnConstraints labelColumn = new ColumnConstraints();
-        labelColumn.setMinWidth(CONTROLS_LABEL_WIDTH);
-        labelColumn.setPrefWidth(CONTROLS_LABEL_WIDTH);
-        return labelColumn;
-    }
-
-    private static ColumnConstraints createInputColumn() {
-        ColumnConstraints inputColumn = new ColumnConstraints();
-        inputColumn.setHgrow(Priority.ALWAYS);
-        inputColumn.setFillWidth(true);
-        return inputColumn;
+    private static VBox createControlGroup(String labelText, Control control) {
+        Label label = new Label(labelText);
+        control.setMaxWidth(Double.MAX_VALUE);
+        VBox group = new VBox(4, label, control);
+        group.setFillWidth(true);
+        return group;
     }
 
     private VBox buildResultsTable() {
@@ -227,42 +211,73 @@ public final class MapsAroundYouGuiApp extends Application {
         return box;
     }
 
+    private VBox buildContentArea() {
+        VBox content = new VBox(12, buildResultsTable(), buildDetailsPanel());
+        VBox.setVgrow(content.getChildren().get(0), Priority.ALWAYS);
+        return content;
+    }
+
     private VBox buildDetailsPanel() {
-        Label header = new Label("Details");
+        Label header = new Label("Selected Listing");
         header.setFont(Font.font(16));
+        detailsTitle.setFont(Font.font(15));
 
         detailsTitle.setWrapText(true);
         detailsAddress.setWrapText(true);
+        detailsCommute.setWrapText(true);
+        detailsSource.setWrapText(true);
         detailsNotes.setWrapText(true);
 
         GridPane grid = new GridPane();
-        grid.setHgap(8);
+        grid.setHgap(12);
         grid.setVgap(6);
         grid.setPadding(new Insets(6, 0, 0, 0));
+        grid.getColumnConstraints().addAll(
+                createDetailsLabelColumn(),
+                createDetailsValueColumn(),
+                createDetailsLabelColumn(),
+                createDetailsValueColumn()
+        );
 
         int row = 0;
-        grid.add(new Label("Title"), 0, row);
-        grid.add(detailsTitle, 1, row++);
-        grid.add(new Label("Address"), 0, row);
-        grid.add(detailsAddress, 1, row++);
-        grid.add(new Label("Room type"), 0, row);
-        grid.add(detailsRoomType, 1, row++);
-        grid.add(new Label("Rent"), 0, row);
-        grid.add(detailsRent, 1, row++);
-        grid.add(new Label("Aircon"), 0, row);
-        grid.add(detailsAircon, 1, row++);
-        grid.add(new Label("Commute"), 0, row);
-        grid.add(detailsCommute, 1, row++);
-        grid.add(new Label("Score"), 0, row);
-        grid.add(detailsScore, 1, row++);
-        grid.add(new Label("Source"), 0, row);
-        grid.add(detailsSource, 1, row++);
-        grid.add(new Label("Notes"), 0, row);
-        grid.add(detailsNotes, 1, row++);
+        addDetailRow(grid, row++, "Address", detailsAddress, "Room type", detailsRoomType);
+        addDetailRow(grid, row++, "Rent", detailsRent, "Aircon", detailsAircon);
+        addDetailRow(grid, row++, "Commute", detailsCommute, "Match", detailsScore);
+        addDetailRow(grid, row++, "Source", detailsSource, "Notes", detailsNotes);
 
-        VBox box = new VBox(6, header, grid);
-        box.setPrefWidth(320);
+        VBox box = new VBox(6, header, detailsTitle, grid);
+        box.setPrefHeight(DETAILS_PANEL_HEIGHT);
+        box.setMinHeight(DETAILS_PANEL_HEIGHT);
+        box.setFillWidth(true);
         return box;
+    }
+
+    private static ColumnConstraints createDetailsLabelColumn() {
+        ColumnConstraints labelColumn = new ColumnConstraints();
+        labelColumn.setMinWidth(DETAILS_LABEL_WIDTH);
+        labelColumn.setPrefWidth(DETAILS_LABEL_WIDTH);
+        return labelColumn;
+    }
+
+    private static ColumnConstraints createDetailsValueColumn() {
+        ColumnConstraints valueColumn = new ColumnConstraints();
+        valueColumn.setHgrow(Priority.ALWAYS);
+        valueColumn.setFillWidth(true);
+        return valueColumn;
+    }
+
+    private static void addDetailRow(
+            GridPane grid,
+            int row,
+            String leftLabel,
+            Label leftValue,
+            String rightLabel,
+            Label rightValue
+    ) {
+        grid.add(new Label(leftLabel), 0, row);
+        grid.add(leftValue, 1, row);
+        grid.add(new Label(rightLabel), 2, row);
+        grid.add(rightValue, 3, row);
     }
 
     private HBox buildStatusBar() {
