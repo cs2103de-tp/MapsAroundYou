@@ -1,11 +1,20 @@
 # MapsAroundYou
+
 Offline smart rental search scaffold for the MapsAroundYou team project.
 
 ## Quick Start
 
-Prerequisite: Java 21 or newer on `PATH` or in `JAVA_HOME`.
+Prerequisite: Java 21 or newer (x86_64/AMD64) on `PATH` or in `JAVA_HOME`.
 
-Run the current CLI entrypoint:
+Run the JavaFX GUI entrypoint:
+
+```powershell
+.\gradlew runGui
+```
+
+On Windows ARM64, `\.\gradlew runGui` auto-switches to an installed x64 Java runtime when available.
+
+Run the CLI entrypoint:
 
 ```powershell
 .\gradlew run
@@ -27,15 +36,20 @@ Run the local quality gate:
 
 ## Current Scope
 
-- Week 8 scaffold uses a CLI as the temporary app surface.
+- The project currently supports both JavaFX GUI and CLI entrypoints.
+- GUI startup is available through the `runGui` Gradle task.
 - The codebase is organized into `storage`, `service`, `logic`, and `cli` layers so GUI work can plug in later.
 - Runtime data stays local under `src/main/resources/commute_data/`.
 
 ## Contributing
 
-All changes to `main` must go through a pull request. The required `PR Quality Gate` check must pass before merge. We recommend
-asking for at least **1 approving review** before merging. While this is not enforced, it is still best practice to
-request review.
+All changes to `main` must go through a pull request. The required
+`PR Quality Gate` check must pass before merge. That gate now aggregates
+`PR Quality Check` on Ubuntu and the cross-OS `PR Build Gate (Linux)`,
+`PR Build Gate (macOS)`, and `PR Build Gate (Windows)` runnable-JAR
+builds on Temurin Java 21 `x64`. We recommend asking for at least
+**1 approving review** before merging. While this is not enforced, it is
+still best practice to request review.
 
 ### Workflow
 

@@ -101,11 +101,17 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
   "listingId": "L001",
   "title": "City-fringe condo room in Jurong East",
   "monthlyRent": 1850,
+  "title": "City-fringe condo room in Jurong East",
+  "monthlyRent": 1850,
   "hasAircon": true,
   "originNodeId": "R01",
   "address": "Blk 123 Jurong East Street 13",
   "roomType": "Condo room",
+  "originNodeId": "R01",
+  "address": "Blk 123 Jurong East Street 13",
+  "roomType": "Condo room",
   "sourcePlatform": "PropertyGuru",
+  "notes": "Curated demo listing"
   "notes": "Curated demo listing"
 }
 ```
@@ -130,6 +136,7 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
 - Invalid or missing fields should produce clear load errors
 - Use a curated demo dataset for development and testing
 - Maintain a small but representative listings set, approximately 100 to 180 units across the supported destinations
+- Maintain a small but representative listings set, approximately 100 to 180 units across the supported destinations
 - Track source provenance for travel-time records and listing entries where possible
 
 ---
@@ -138,10 +145,11 @@ L002,Quiet stay near Tiong Bahru,1800,true,R02,Blk 123 Tiong Bahru Road,Condo ro
 
 The repository-tracked commute dataset is stored as CSV files under `src/main/resources/commute_data/`.
 
-### [`Rental_List.csv`](../../src/main/resources/commute_data/Rental_List.csv) (Input)
+### [`origin_nodes.csv`](../../src/main/resources/commute_data/origin_nodes.csv) (Input)
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `Flat_ID` | String | Unique identifier for the covered rental origin node, for example `R01` |
 | `Flat_ID` | String | Unique identifier for the covered rental origin node, for example `R01` |
 | `Postal_Code` | String | Six-digit Singapore postal code used for geocoding |
 | `Region` | String | Broad Singapore region |
@@ -160,7 +168,7 @@ The repository-tracked commute dataset is stored as CSV files under `src/main/re
 
 | Column Name | Description |
 |-------------|-------------|
-| `flat_id` | Foreign key matching `Flat_ID` in `Rental_List.csv` |
+| `flat_id` | Foreign key matching `Flat_ID` in `origin_nodes.csv` |
 | `destination_id` | Foreign key matching `ID` in `Dst_List.csv` |
 | `pt_total` | Total public-transport journey time in minutes |
 | `pt_walk` | Walking time within the public-transport journey |
