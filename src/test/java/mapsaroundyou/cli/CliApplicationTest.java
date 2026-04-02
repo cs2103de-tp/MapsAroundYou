@@ -18,7 +18,6 @@ import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
 import mapsaroundyou.model.SearchResult;
-import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
 
 class CliApplicationTest {

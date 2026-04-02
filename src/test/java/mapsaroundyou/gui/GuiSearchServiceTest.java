@@ -1,5 +1,14 @@
 package mapsaroundyou.gui;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+
 import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.model.CommuteEstimate;
 import mapsaroundyou.model.DatasetMetadata;
@@ -9,16 +18,6 @@ import mapsaroundyou.model.RentalListing;
 import mapsaroundyou.model.SearchResult;
 import mapsaroundyou.model.TransportMode;
 import mapsaroundyou.model.UserPreferences;
-
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GuiSearchServiceTest {
     @Test
