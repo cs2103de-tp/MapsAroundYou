@@ -39,17 +39,23 @@ import mapsaroundyou.model.UserPreferences;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1000;
     private static final int MIN_HEIGHT = 600;
-    private static final int CONTROLS_PANEL_WIDTH = 320;
+    private static final int CONTROLS_PANEL_WIDTH = 340;
     private static final int RESULTS_TABLE_MIN_WIDTH = 600;
-    private static final int LISTING_COLUMN_WIDTH = 260;
-    private static final int RENT_COLUMN_WIDTH = 95;
-    private static final int COMMUTE_COLUMN_WIDTH = 95;
-    private static final int AIRCON_COLUMN_WIDTH = 70;
-    private static final int SCORE_COLUMN_WIDTH = 80;
+    private static final int LISTING_COLUMN_MIN_WIDTH = 250;
+    private static final int RENT_COLUMN_MIN_WIDTH = 110;
+    private static final int COMMUTE_COLUMN_MIN_WIDTH = 110;
+    private static final int AIRCON_COLUMN_MIN_WIDTH = 90;
+    private static final int SCORE_COLUMN_MIN_WIDTH = 100;
+    private static final double LISTING_COLUMN_WIDTH_RATIO = 0.42d;
+    private static final double RENT_COLUMN_WIDTH_RATIO = 0.15d;
+    private static final double COMMUTE_COLUMN_WIDTH_RATIO = 0.15d;
+    private static final double AIRCON_COLUMN_WIDTH_RATIO = 0.13d;
+    private static final double SCORE_COLUMN_WIDTH_RATIO = 0.15d;
     private static final int DETAILS_PANEL_HEIGHT = 165;
     private static final int DETAILS_LABEL_WIDTH = 72;
 
@@ -99,7 +105,6 @@ public final class MapsAroundYouGuiApp extends Application {
         root.setTop(buildHeader());
         root.setLeft(buildControls());
         root.setCenter(buildContentArea());
-        root.setBottom(buildStatusBar());
 
         Scene scene = new Scene(root, MIN_WIDTH, MIN_HEIGHT);
         stage.setTitle("MapsAroundYou");
@@ -118,7 +123,13 @@ public final class MapsAroundYouGuiApp extends Application {
 
         datasetLabel.setWrapText(true);
 
-        VBox header = new VBox(4, title, datasetLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox topRow = new HBox(12, title, spacer, buildStatusIndicator());
+        topRow.setAlignment(Pos.CENTER_LEFT);
+
+        VBox header = new VBox(4, topRow, datasetLabel);
         header.setPadding(new Insets(0, 0, 8, 0));
         return header;
     }
@@ -160,7 +171,7 @@ public final class MapsAroundYouGuiApp extends Application {
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
         VBox box = new VBox(10, form, spacer, searchButton);
-        box.setPadding(new Insets(8, 20, 8, 8));
+        box.setPadding(new Insets(10, 30, 10, 18));
         box.setPrefWidth(CONTROLS_PANEL_WIDTH);
         box.setMinWidth(CONTROLS_PANEL_WIDTH);
         box.setFillWidth(true);
@@ -180,7 +191,7 @@ public final class MapsAroundYouGuiApp extends Application {
     private VBox buildResultsTable() {
         resultsTable.setPlaceholder(new Label("No results yet. Set filters and click Search."));
         resultsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        resultsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        resultsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         resultsTable.setMinWidth(RESULTS_TABLE_MIN_WIDTH);
         configureTableColumns();
         resultsTable.getColumns().setAll(List.of(
@@ -266,66 +277,46 @@ public final class MapsAroundYouGuiApp extends Application {
         grid.add(rightValue, 3, row);
     }
 
-    private HBox buildStatusBar() {
+    private HBox buildStatusIndicator() {
         loadingIndicator.setVisible(false);
         loadingIndicator.setPrefSize(18, 18);
 
-        statusLabel.setWrapText(true);
-        HBox bar = new HBox(10, loadingIndicator, statusLabel);
+        statusLabel.setWrapText(false);
+        HBox bar = new HBox(10, statusLabel, loadingIndicator);
         bar.setAlignment(Pos.CENTER_LEFT);
-        bar.setPadding(new Insets(10, 0, 0, 0));
-        HBox.setHgrow(statusLabel, Priority.ALWAYS);
         return bar;
     }
 
     private void configureTableColumns() {
         listingColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTitle()));
-        listingColumn.setMinWidth(LISTING_COLUMN_WIDTH);
-        listingColumn.setPrefWidth(LISTING_COLUMN_WIDTH);
+        listingColumn.setMinWidth(LISTING_COLUMN_MIN_WIDTH);
+        listingColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(LISTING_COLUMN_WIDTH_RATIO));
         listingColumn.setSortable(false);
+        listingColumn.setCellFactory(createCenteredCellFactory(Function.identity()));
 
         rentColumn.setCellValueFactory(
                 cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getMonthlyRent())
         );
-        rentColumn.setMinWidth(RENT_COLUMN_WIDTH);
-        rentColumn.setPrefWidth(RENT_COLUMN_WIDTH);
+        rentColumn.setMinWidth(RENT_COLUMN_MIN_WIDTH);
+        rentColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(RENT_COLUMN_WIDTH_RATIO));
+        rentColumn.setCellFactory(createCenteredCellFactory(value -> Integer.toString(value.intValue())));
 
         commuteColumn.setCellValueFactory(
                 cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getTotalCommuteMinutes())
         );
-        commuteColumn.setMinWidth(COMMUTE_COLUMN_WIDTH);
-        commuteColumn.setPrefWidth(COMMUTE_COLUMN_WIDTH);
+        commuteColumn.setMinWidth(COMMUTE_COLUMN_MIN_WIDTH);
+        commuteColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(COMMUTE_COLUMN_WIDTH_RATIO));
+        commuteColumn.setCellFactory(createCenteredCellFactory(value -> Integer.toString(value.intValue())));
 
         airconColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().hasAircon()));
-        airconColumn.setMinWidth(AIRCON_COLUMN_WIDTH);
-        airconColumn.setPrefWidth(AIRCON_COLUMN_WIDTH);
-        airconColumn.setSortable(false);
-        airconColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    return;
-                }
-                setText(item ? "Yes" : "No");
-            }
-        });
+        airconColumn.setMinWidth(AIRCON_COLUMN_MIN_WIDTH);
+        airconColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(AIRCON_COLUMN_WIDTH_RATIO));
+        airconColumn.setCellFactory(createCenteredCellFactory(item -> item ? "Yes" : "No"));
 
         matchColumn.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getScore()));
-        matchColumn.setMinWidth(SCORE_COLUMN_WIDTH);
-        matchColumn.setPrefWidth(SCORE_COLUMN_WIDTH);
-        matchColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Number item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    return;
-                }
-                setText(String.format("%.3f", item.doubleValue()));
-            }
-        });
+        matchColumn.setMinWidth(SCORE_COLUMN_MIN_WIDTH);
+        matchColumn.prefWidthProperty().bind(resultsTable.widthProperty().multiply(SCORE_COLUMN_WIDTH_RATIO));
+        matchColumn.setCellFactory(createCenteredCellFactory(item -> String.format("%.3f", item.doubleValue())));
     }
 
     private void configureInteractions() {
@@ -342,7 +333,6 @@ public final class MapsAroundYouGuiApp extends Application {
         });
 
         searchButton.setOnAction(event -> runSearch());
-        resultsTable.setOnSort(event -> rememberCurrentSortMode());
 
         resultsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
@@ -351,6 +341,24 @@ public final class MapsAroundYouGuiApp extends Application {
             }
             populateDetails(newVal);
         });
+    }
+
+    private static <T> javafx.util.Callback<TableColumn<SearchRow, T>, TableCell<SearchRow, T>>
+            createCenteredCellFactory(
+            Function<T, String> formatter
+    ) {
+        return column -> new TableCell<>() {
+            @Override
+            protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                setAlignment(Pos.CENTER);
+                if (empty || item == null) {
+                    setText(null);
+                    return;
+                }
+                setText(formatter.apply(item));
+            }
+        };
     }
 
     private void loadInitialData() {
@@ -555,12 +563,6 @@ public final class MapsAroundYouGuiApp extends Application {
             return SortMode.COMMUTE;
         }
         return SortMode.BALANCED;
-    }
-
-    private void rememberCurrentSortMode() {
-        if (resultsTable.getSortOrder().isEmpty()) {
-            applyTableSort(SortMode.BALANCED);
-        }
     }
 
     private record InitialData(List<Destination> destinations, DatasetMetadata metadata, UserPreferences preferences) {
