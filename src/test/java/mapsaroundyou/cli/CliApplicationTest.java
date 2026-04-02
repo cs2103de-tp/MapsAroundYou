@@ -133,13 +133,7 @@ class CliApplicationTest {
         }
 
         @Override
-        public void setPreferences(
-                int maxRent,
-                int maxCommuteMinutes,
-                int maxTransfers,
-                boolean requireAircon,
-                TransportMode transportMode
-        ) {
+        public void setPreferences(UserPreferences preferences) {
         }
 
         @Override

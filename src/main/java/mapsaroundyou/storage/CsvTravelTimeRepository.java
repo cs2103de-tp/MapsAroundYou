@@ -91,13 +91,19 @@ public final class CsvTravelTimeRepository implements TravelTimeRepository {
                             + originNodeId + " -> " + destinationId);
                 }
 
+                int ptTransfers = CsvSupport.parseRequiredInt(record, "pt_transfers", sourceName);
+                if (ptTransfers < 0) {
+                    throw new DataLoadException("Invalid pt_transfers value (must be non-negative) in "
+                            + sourceName + " for " + originNodeId + " -> " + destinationId + ": " + ptTransfers);
+                }
+
                 CommuteEstimate commuteEstimate = new CommuteEstimate(
                         originNodeId,
                         destinationId,
                         CsvSupport.parseRequiredInt(record, "pt_total", sourceName),
                         CsvSupport.parseRequiredInt(record, "pt_transit", sourceName),
                         CsvSupport.parseRequiredInt(record, "pt_walk", sourceName),
-                        CsvSupport.parseRequiredInt(record, "pt_transfers", sourceName),
+                        ptTransfers,
                         CsvSupport.parseRequiredDouble(record, "pt_fare", sourceName)
                 );
                 byDestination.put(destinationId, commuteEstimate);

@@ -119,18 +119,12 @@ class GuiSearchServiceTest {
         }
 
         @Override
-        public void setPreferences(
-                int maxRent,
-                int maxCommuteMinutes,
-                int maxTransfers,
-                boolean requireAircon,
-                TransportMode mode
-        ) {
-            this.maxRent = maxRent;
-            this.maxCommuteMinutes = maxCommuteMinutes;
-            this.maxTransfers = maxTransfers;
-            this.requireAircon = requireAircon;
-            this.transportMode = mode;
+        public void setPreferences(UserPreferences preferences) {
+            this.maxRent = preferences.maxRent();
+            this.maxCommuteMinutes = preferences.maxCommuteMinutes();
+            this.maxTransfers = preferences.maxTransfers();
+            this.requireAircon = preferences.requireAircon();
+            this.transportMode = preferences.transportMode();
         }
 
         @Override

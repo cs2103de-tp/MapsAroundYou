@@ -6,6 +6,7 @@ import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.RentalListing;
 import mapsaroundyou.model.SearchResult;
 import mapsaroundyou.model.TransportMode;
+import mapsaroundyou.model.UserPreferences;
 import mapsaroundyou.service.CommuteEstimator;
 import mapsaroundyou.service.ListingFilter;
 import mapsaroundyou.service.ListingRanker;
@@ -56,7 +57,8 @@ class DefaultSearchLogicTest {
         );
 
         logic.setDestination("D01");
-        logic.setPreferences(1600, 45, 0, true, TransportMode.PUBLIC_TRANSPORT);
+        logic.setPreferences(new UserPreferences("D01", 1600, 45, 0, true,
+            TransportMode.PUBLIC_TRANSPORT, 10, false));
 
         List<SearchResult> results = logic.generateShortlist();
 
@@ -91,7 +93,8 @@ class DefaultSearchLogicTest {
         );
 
         logic.setDestination("D01");
-        logic.setPreferences(2000, 60, 1, false, TransportMode.PUBLIC_TRANSPORT);
+        logic.setPreferences(new UserPreferences("D01", 2000, 60, 1, false,
+            TransportMode.PUBLIC_TRANSPORT, 10, false));
 
         List<SearchResult> results = logic.generateShortlist();
 

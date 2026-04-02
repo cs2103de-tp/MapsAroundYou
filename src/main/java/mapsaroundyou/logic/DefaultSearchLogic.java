@@ -93,13 +93,15 @@ public class DefaultSearchLogic implements SearchLogic {
     }
 
     @Override
-    public void setPreferences(
-            int maxRent,
-            int maxCommuteMinutes,
-            int maxTransfers,
-            boolean requireAircon,
-            TransportMode transportMode
-    ) {
+    public void setPreferences(UserPreferences preferences) {
+        if (preferences == null) {
+            throw new InvalidInputException("Search preferences must not be null.");
+        }
+        int maxRent = preferences.maxRent();
+        int maxCommuteMinutes = preferences.maxCommuteMinutes();
+        int maxTransfers = preferences.maxTransfers();
+        boolean requireAircon = preferences.requireAircon();
+        TransportMode transportMode = preferences.transportMode();
         if (maxRent < 0) {
             throw new InvalidInputException("Maximum rent must be at least 0.");
         }
@@ -119,8 +121,8 @@ public class DefaultSearchLogic implements SearchLogic {
                 maxTransfers,
                 requireAircon,
                 transportMode,
-                AppConfig.DEFAULT_RESULT_LIMIT,
-                false
+            preferences.resultLimit(),
+            preferences.excludeWalkDominantRoutes()
         );
     }
 

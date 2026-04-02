@@ -1,5 +1,8 @@
 package mapsaroundyou.gui;
 
+import java.util.List;
+import java.util.Objects;
+
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -30,9 +33,6 @@ import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.ListingDetails;
-
-import java.util.List;
-import java.util.Objects;
 
 public final class MapsAroundYouGuiApp extends Application {
     private static final int MIN_WIDTH = 1100;
@@ -369,6 +369,7 @@ public final class MapsAroundYouGuiApp extends Application {
         destinationComboBox.setDisable(busy);
         maxRentField.setDisable(busy);
         maxCommuteField.setDisable(busy);
+        maxTransfersField.setDisable(busy);
         requireAirconCheckBox.setDisable(busy);
         searchButton.setDisable(busy);
         resultsTable.setDisable(busy);
