@@ -126,8 +126,12 @@ As a renter, I want to see the commute details split by transit and walking so t
 As a renter, I want to select a preset (Student vs. Worker) so that default time caps and budgets are automatically applied.
 
 **Acceptance Criteria:**
-- Selecting 'Student' sets max rent and default commute caps automatically based on typical student budgets.
-- User can manually override these default values in the left input panel.
+- Selecting `Student` sets `Max rent (SGD)` to `1400`, `Max commute (minutes)` to `50`, and turns `Require aircon` off.
+- Selecting `Worker` sets `Max rent (SGD)` to `2000`, `Max commute (minutes)` to `65`, and turns `Require aircon` off.
+- User can manually override these default values in the left input panel before searching.
+- On first app startup, the persona preset starts as `New User`, and the app prompts the user to choose between `Student` and `Worker`.
+- After that, users can change the persona preset via the `Settings` window (and the updated defaults remain editable).
+- The `Settings` window also includes a `Dark mode` toggle.
 
 ---
 

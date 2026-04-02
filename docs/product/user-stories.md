@@ -56,5 +56,6 @@
 
 - [ ] **US8 - Set Persona Preset (Optional/Stretch)**
   - **As a** renter, **I want** to select a preset (Student vs. Worker) **so that** default time caps and budgets are automatically applied.
-  - **AC1:** Selecting 'Student' sets max rent and default commute caps automatically based on typical student budgets.
-  - **AC2:** User can manually override these default values in the left input panel.
+  - **AC1:** Selecting 'Student' sets `Max rent (SGD)` to `1400`, `Max commute (minutes)` to `50`, and turns `Require aircon` off; selecting 'Worker' sets `Max rent (SGD)` to `2000`, `Max commute (minutes)` to `65`, and turns `Require aircon` off.
+  - **AC2:** User can manually override these default values in the left input panel before searching.
+  - **AC3:** On first app startup, the preset starts as `New User` and the app prompts the user to choose between `Student` and `Worker`; after that, users can change it via the `Settings` window, which also includes a `Dark mode` toggle.
