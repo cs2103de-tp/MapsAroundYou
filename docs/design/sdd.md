@@ -38,7 +38,7 @@ Since we use local data, our app will be accurate only up to the last dataset up
 | **Logic** | Sets up the search pipeline and exposes UI-friendly operations |
 | **Services** | CommuteEstimator, ListingFilter, ListingRanker, RouteAnalyzer |
 | **Model** | Entities (Listing, Destination, Preferences, Results) |
-| **Storage** | Loads local datasets (destinations/travel-times/listings), optional persistence of preferences for improved UX |
+| **Storage** | Loads local datasets (destinations/travel-times/listings) and persists last-used preferences for improved UX |
 
 See [Architecture Overview](./architecture.md) for details.
 
@@ -51,7 +51,7 @@ See [Architecture Overview](./architecture.md) for details.
 **Responsibilities**
 
 - Destination selection UI (supported destination picker)
-- Filter inputs: max rent, max commute mins, require aircon
+- Filter inputs: max rent, max commute mins, max walk mins, require aircon, result limit, sort mode, walk-dominant toggle
 - Results list/table: top matches + basic fields
 - Details panel/dialog: full listing + commute breakdown (V1.4)
 
@@ -68,11 +68,11 @@ See [Architecture Overview](./architecture.md) for details.
 - Execute search pipeline (load → filter → estimate → rank)
 - Provide view models for UI
 - Centralize error handling (user-friendly messages)
+- Restore and persist last-used preferences through storage
 
 **Primary operations**
 
-- `setDestination(destinationId)`
-- `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)`
+- `updatePreferences(preferences)`
 - `generateShortlist()` → `List<SearchResult>`
 - `getListingDetails(listingId)` → `ListingDetails`
 - `getCommuteDetails(listingId)` → `CommuteEstimate` (V1.4)
@@ -83,7 +83,7 @@ See [Architecture Overview](./architecture.md) for details.
 |---------|------------|
 | **ListingFilter** | `filterByRent(listings, maxRent)`, `filterByAircon(listings, requireAircon)` |
 | **CommuteEstimator** | `estimate(originNodeId, destinationId, mode)` → `CommuteEstimate` — Implementation: local travel-time matrix lookup |
-| **ListingRanker** | Deterministic sorting/scoring (see §5) |
+| **ListingRanker** | Deterministic selectable sorting/scoring (see §5) |
 | **RouteAnalyzer** (V1.4) | `isWalkDominant(commuteEstimate)` → `bool`, `summarize(commuteEstimate)` → `CommuteSummary` |
 
 ### 3.4 Model (Domain)
@@ -95,7 +95,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 - `DestinationRepository` (destinations file)
 - `TravelTimeRepository` (travel-times file)
 - `ListingRepository` (listings file)
-- Optional: `UserPrefsRepository` (save last-used preferences)
+- `UserPrefsRepository` (save last-used preferences)
 
 ---
 
@@ -109,7 +109,7 @@ Immutable-ish entities; lightweight DTOs between layers.
 | **TravelTimeRecord** | `originNodeId: String`, `destinationId: String`, `totalMinutes: int`, optional: `transitMinutes`, `walkMinutes`, `transfers`, `source` |
 | **TravelTimeMatrix** | `lookup: Map<String, Map<String, TravelTimeRecord>>` |
 | **RentalListing** | `listingId: String`, `title: String`, `monthlyRent: int`, `hasAircon: boolean`, `originNodeId: String`, optional: `address`, `roomType`, `sourcePlatform`, `destinationTags`, `notes` |
-| **UserPreferences** | `destinationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: enum` (MVP default: public transport) |
+| **UserPreferences** | `destinationId: String`, `maxRent: int`, `maxCommuteMinutes: int`, `maxWalkMinutes: int`, `requireAircon: boolean`, `transportMode: enum`, `resultLimit: int`, `sortMode: enum`, `excludeWalkDominantRoutes: boolean` |
 | **CommuteEstimate** | `totalMinutes: int`, `transitMinutes: int`, `walkMinutes: int` (0 for MVP), `transfers: int`, `routeStations: List<String>` |
 | **SearchResult** | `listing: RentalListing`, `commute: CommuteEstimate`, `score: double` |
 
@@ -126,21 +126,23 @@ Immutable-ish entities; lightweight DTOs between layers.
 
 ### Workflow A — Set Primary Destination (V1.2)
 
-1. User selects a supported destination in the GUI.
-2. UI calls `Logic.setDestination(destinationId)`.
-3. Logic stores `destinationId` in `UserPreferences`.
-4. (Optional) Storage persists preferences for improved UX.
+1. User selects a supported destination and other search preferences in the GUI or CLI.
+2. UI or CLI calls `Logic.updatePreferences(preferences)`.
+3. Logic stores the complete `UserPreferences`.
+4. Storage persists preferences after a successful search.
 
 ### Workflow B — Generate Shortlist (MVP V1.3)
 
-1. User sets maxRent, maxCommuteMinutes, requireAircon and clicks Search.
+1. User sets destination, maxRent, maxCommuteMinutes, maxWalkMinutes, requireAircon, resultLimit, sortMode, and optional walk-dominant rejection, then clicks Search.
 2. UI calls `Logic.generateShortlist()`.
 3. Logic loads listings (Storage).
 4. ListingFilter applies rent + aircon filters.
 5. For each remaining listing: `CommuteEstimator.estimate(listing.originNodeId, destinationId, 'PUBLIC_TRANSPORT')` — discard if `totalMinutes > maxCommuteMinutes`.
-6. In V1.4, `RouteAnalyzer.isWalkDominant()` discards routes where `walkMinutes / totalMinutes` is greater than or equal to the configured threshold.
-7. ListingRanker computes score and sorts results.
-8. UI displays ranked results.
+6. Discard listings where `walkMinutes > maxWalkMinutes`.
+7. If enabled, `RouteAnalyzer.isWalkDominant()` discards routes where `walkMinutes / totalMinutes` is greater than or equal to the configured threshold.
+8. ListingRanker computes score and sorts results according to `sortMode`.
+9. Logic truncates the ranked results to `resultLimit`.
+10. UI displays ranked results.
 
 ```mermaid
 flowchart TD
@@ -191,13 +193,13 @@ flowchart TD
 
 ## 6. Ranking and Scoring (Deterministic)
 
-**Default sort** (for stability; dataset shouldn't be too large):
+**Supported sorts**
 
-1. Lowest `commute.totalMinutes`
-2. Lowest `listing.monthlyRent`
-3. Tie-breaker: `listingId` (stable ordering)
+1. `COMMUTE`: Lowest `commute.totalMinutes`, then lowest `listing.monthlyRent`, then `listingId`
+2. `RENT`: Lowest `listing.monthlyRent`, then lowest `commute.totalMinutes`, then `listingId`
+3. `BALANCED`: Highest score, then lowest `commute.totalMinutes`, then lowest `listing.monthlyRent`, then `listingId`
 
-**Optional score function** (for display):
+**Score function** (for display and balanced sorting):
 
 ```
 score = w1 * (normalizedCommute) + w2 * (normalizedRent)

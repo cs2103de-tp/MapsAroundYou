@@ -2,6 +2,7 @@ package mapsaroundyou.gui;
 
 import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.Destination;
+import mapsaroundyou.model.SortMode;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,19 +15,50 @@ class GuiSearchRequestParserTest {
 
     @Test
     void parse_validValues_returnsSearchRequest() {
-        SearchRequest request = GuiSearchRequestParser.parse(DESTINATION, "2200", "45", true);
+        SearchRequest request = GuiSearchRequestParser.parse(
+                DESTINATION,
+                "2200",
+                "45",
+                "10",
+                true,
+                "5",
+                SortMode.BALANCED,
+                true
+        );
 
         assertEquals("D01", request.destinationId());
         assertEquals(2200, request.maxRent());
         assertEquals(45, request.maxCommuteMinutes());
+        assertEquals(10, request.maxWalkMinutes());
         assertEquals(true, request.requireAircon());
+        assertEquals(5, request.resultLimit());
+        assertEquals(SortMode.BALANCED, request.sortMode());
+        assertEquals(true, request.excludeWalkDominantRoutes());
+    }
+
+    @Test
+    void parse_walkPreferenceDisabled_keepsIndependentWalkLimit() {
+        SearchRequest request = GuiSearchRequestParser.parse(
+                DESTINATION,
+                "2200",
+                "45",
+                "12",
+                false,
+                "5",
+                SortMode.BALANCED,
+                false
+        );
+
+        assertEquals(12, request.maxWalkMinutes());
+        assertEquals(false, request.excludeWalkDominantRoutes());
     }
 
     @Test
     void parse_negativeRent_throwsInvalidInputException() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> GuiSearchRequestParser.parse(DESTINATION, "-1", "45", false)
+                () -> GuiSearchRequestParser.parse(DESTINATION, "-1", "45", "10", false, "5",
+                        SortMode.COMMUTE, false)
         );
 
         assertEquals("Max rent must be at least 0.", exception.getMessage());
@@ -36,9 +68,21 @@ class GuiSearchRequestParserTest {
     void parse_zeroCommute_throwsInvalidInputException() {
         InvalidInputException exception = assertThrows(
                 InvalidInputException.class,
-                () -> GuiSearchRequestParser.parse(DESTINATION, "2000", "0", false)
+                () -> GuiSearchRequestParser.parse(DESTINATION, "2000", "0", "10", false, "5",
+                        SortMode.COMMUTE, false)
         );
 
         assertEquals("Max commute must be at least 1.", exception.getMessage());
+    }
+
+    @Test
+    void parse_zeroResultLimit_throwsInvalidInputException() {
+        InvalidInputException exception = assertThrows(
+                InvalidInputException.class,
+                () -> GuiSearchRequestParser.parse(DESTINATION, "2000", "45", "10", false, "0",
+                        SortMode.COMMUTE, false)
+        );
+
+        assertEquals("Result limit must be at least 1.", exception.getMessage());
     }
 }

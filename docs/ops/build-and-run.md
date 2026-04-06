@@ -36,12 +36,18 @@ Each search will prompt for:
 - destination id
 - max rent
 - max commute minutes
+- max walking minutes
 - aircon requirement
+- result limit
+- sort mode
+- walk-dominant route toggle
+
+Blank interactive answers keep the value shown in brackets.
 
 ### Run the Flag-Driven CLI
 
 ```powershell
-.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --require-aircon"
+.\gradlew run --args="search --destination D01 --max-rent 2200 --max-commute 45 --max-walk 10 --result-limit 5 --sort balanced --require-aircon --exclude-walk-dominant"
 ```
 
 Supported flags:
@@ -49,13 +55,27 @@ Supported flags:
 - `--destination <ID>`
 - `--max-rent <SGD>`
 - `--max-commute <minutes>`
+- `--max-walk <minutes>`
+- `--result-limit <count>`
+- `--sort <commute|rent|balanced>`
 - `--require-aircon`
+- `--exclude-walk-dominant`
 
 ### Help Output
 
 ```powershell
 .\gradlew run --args="--help"
 ```
+
+### Local Preferences
+
+Successful searches persist the last-used preferences to:
+
+```text
+<user-home>/.mapsaroundyou/user-preferences.properties
+```
+
+Missing or invalid preference files are ignored safely at startup.
 
 ## Offline Commute Data Regeneration
 

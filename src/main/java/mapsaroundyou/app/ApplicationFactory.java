@@ -2,6 +2,7 @@ package mapsaroundyou.app;
 
 import mapsaroundyou.common.AppConfig;
 import mapsaroundyou.logic.DefaultSearchLogic;
+import mapsaroundyou.logic.PersistentSearchLogic;
 import mapsaroundyou.logic.SearchLogic;
 import mapsaroundyou.service.CommuteEstimator;
 import mapsaroundyou.service.ListingFilter;
@@ -12,6 +13,7 @@ import mapsaroundyou.storage.CsvDestinationRepository;
 import mapsaroundyou.storage.CsvListingRepository;
 import mapsaroundyou.storage.CsvOriginNodeRepository;
 import mapsaroundyou.storage.CsvTravelTimeRepository;
+import mapsaroundyou.storage.PropertiesUserPrefsRepository;
 import mapsaroundyou.storage.PropertiesDatasetMetadataRepository;
 
 /**
@@ -40,14 +42,17 @@ public final class ApplicationFactory {
                 travelTimeRepository
         );
 
-        return new DefaultSearchLogic(
-                destinationRepository,
-                listingRepository,
-                datasetMetadataRepository,
-                new ListingFilter(),
-                new CommuteEstimator(travelTimeRepository),
-                new ListingRanker(),
-                new RouteAnalyzer(AppConfig.DEFAULT_WALK_DOMINANT_THRESHOLD)
+        return new PersistentSearchLogic(
+                new DefaultSearchLogic(
+                        destinationRepository,
+                        listingRepository,
+                        datasetMetadataRepository,
+                        new ListingFilter(),
+                        new CommuteEstimator(travelTimeRepository),
+                        new ListingRanker(),
+                        new RouteAnalyzer(AppConfig.DEFAULT_WALK_DOMINANT_THRESHOLD)
+                ),
+                new PropertiesUserPrefsRepository(AppConfig.userPreferencesPath())
         );
     }
 }

@@ -12,14 +12,13 @@ This document specifies the operations exposed by the Logic layer for the UI. Al
 
 | Operation | Parameters | Description |
 |-----------|------------|-------------|
-| `setDestination(destinationId)` | `destinationId: String` | Sets the primary destination from the supported destination dataset in `UserPreferences` |
-| `setPreferences(maxRent, maxCommuteMinutes, requireAircon, transportMode)` | `maxRent: int`, `maxCommuteMinutes: int`, `requireAircon: boolean`, `transportMode: TransportMode` | Updates search constraints; transport mode defaults to public transport for MVP |
+| `updatePreferences(preferences)` | `preferences: UserPreferences` | Replaces the active search preferences, including destination, filters, result limit, sort mode, and walk-dominant toggle |
 
 ### Search
 
 | Operation | Returns | Description |
 |-----------|---------|-------------|
-| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → reject over-max-commute and walk-dominant routes (V1.4) → rank and sort. Returns ranked results. |
+| `generateShortlist()` | `List<SearchResult>` | Executes full pipeline: load listings → filter by rent/aircon → estimate commute → reject over-max-commute, over-max-walk, and optionally walk-dominant routes → rank, sort, and truncate. Returns ranked results. |
 
 ### Details
 
@@ -49,8 +48,10 @@ These are used by Logic; not directly called by UI.
 
 ### ListingRanker
 
-- Deterministic sorting: lowest commute, then lowest rent, then `listingId` tie-breaker
-- Optional score: `w1 * normalizedCommute + w2 * normalizedRent`
+- `COMMUTE`: lowest commute, then lowest rent, then `listingId`
+- `RENT`: lowest rent, then lowest commute, then `listingId`
+- `BALANCED`: highest score, then lowest commute, then lowest rent, then `listingId`
+- Score remains available for display: `1 - (0.5 * normalizedCommute + 0.5 * normalizedRent)`
 
 ### RouteAnalyzer (V1.4)
 
@@ -69,6 +70,7 @@ These are used by Logic; not directly called by UI.
 | `ListingDetails` | Full `RentalListing` + optional commute breakdown |
 | `CommuteEstimate` | `totalMinutes`, `transitMinutes`, `walkMinutes`, `transfers`, `routeStations` |
 | `CommuteSummary` | Human-readable breakdown for UI |
+| `UserPreferences` | `destinationId`, `maxRent`, `maxCommuteMinutes`, `maxWalkMinutes`, `requireAircon`, `transportMode`, `resultLimit`, `sortMode`, `excludeWalkDominantRoutes` |
 
 ---
 
@@ -90,8 +92,7 @@ Logic centralizes all error handling. All exceptions are caught and converted to
 
 | Operation | Validation Rule |
 |-----------|----------------|
-| `setDestination(destinationId)` | `destinationId` must be non-null, non-empty, and present in the destination dataset |
-| `setPreferences(maxRent, ...)` | `maxRent` ≥ 0; `maxCommuteMinutes` ≥ 1; `transportMode` non-null |
+| `updatePreferences(preferences)` | `destinationId` must be blank or present in the destination dataset; `maxRent` ≥ 0; `maxCommuteMinutes` ≥ 1; `maxWalkMinutes` ≥ 0; `transportMode` non-null; `resultLimit` ≥ 1; `sortMode` non-null |
 | `generateShortlist()` | Destination must be set; preferences must pass all rules above |
 | `getListingDetails(listingId)` | `listingId` must be non-null and present in the listings dataset |
 | `getCommuteDetails(listingId)` | `listingId` must be non-null; destination must be set |
@@ -105,7 +106,7 @@ Logic centralizes all error handling. All exceptions are caught and converted to
 | `DestinationNotFoundException` | "Unknown destination. Please select a supported place from the list." |
 | `ListingNotFoundException` | "Listing not found. It may have been removed from the dataset." |
 | `DataLoadException` | "Failed to load data. Please check the application files and restart." |
-| `NoResultsException` | "No listings match your filters. Try relaxing your rent or commute limits." |
+| `NoResultsException` | "No listings match your filters. Try relaxing your rent, commute, or walking limits." |
 
 ---
 
