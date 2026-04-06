@@ -86,12 +86,37 @@ jobs:
             build/reports/checkstyle
             build/reports/spotbugs
 
+  pr-file-hygiene:
+    name: PR File Hygiene
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Reject forbidden files
+        run: |
+          forbidden_patterns='(\.(code-workspace|iml)$|\.idea/|\.vscode/)'
+          added=$(git diff --name-only --diff-filter=A origin/main...HEAD \
+                  | grep -E "$forbidden_patterns" || true)
+          if [ -n "$added" ]; then
+            echo "::error::IDE/editor config files should not be committed:"
+            echo "$added"
+            exit 1
+          fi
+
+      - name: Check doc markdown links
+        run: bash scripts/check-doc-links.sh
+
   pr-quality-gate:
     name: PR Quality Gate
     if: ${{ always() }}
     needs:
       - pr-build-gate
       - pr-quality-check
+      - pr-file-hygiene
     runs-on: ubuntu-latest
 
     steps:
@@ -100,6 +125,7 @@ jobs:
           declare -A results=(
             ["PR Build Gate matrix"]="${{ needs.pr-build-gate.result }}"
             ["PR Quality Check"]="${{ needs.pr-quality-check.result }}"
+            ["PR File Hygiene"]="${{ needs.pr-file-hygiene.result }}"
           )
 
           failures=0

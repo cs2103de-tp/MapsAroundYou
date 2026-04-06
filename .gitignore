@@ -30,9 +30,11 @@ replay_pid*
 
 # Intellij
 .idea/
+*.iml
 
 # VS Code workspace settings
 .vscode/
+*.code-workspace
 
 # Microsoft Office temporary files
 ~$*
