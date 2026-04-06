@@ -15,7 +15,10 @@ fi
 ERRORS_FILE="$(mktemp)"
 trap 'rm -f "$ERRORS_FILE"' EXIT
 
-mapfile -t md_files < <(find "$REPO_ROOT/docs" -name '*.md' 2>/dev/null)
+md_files=()
+while IFS= read -r -d '' md_file; do
+    md_files+=("$md_file")
+done < <(find "$REPO_ROOT/docs" -name '*.md' -print0 2>/dev/null)
 [ -f "$REPO_ROOT/README.md" ] && md_files+=("$REPO_ROOT/README.md")
 
 for md_file in "${md_files[@]}"; do

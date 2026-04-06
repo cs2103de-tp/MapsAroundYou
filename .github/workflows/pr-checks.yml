@@ -98,8 +98,14 @@ jobs:
 
       - name: Reject forbidden files
         run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_ref="${{ github.event.pull_request.base.sha }}"
+          else
+            git fetch origin main
+            base_ref="origin/main"
+          fi
           forbidden_patterns='(\.(code-workspace|iml)$|\.idea/|\.vscode/)'
-          added=$(git diff --name-only --diff-filter=A origin/main...HEAD \
+          added=$(git diff --name-only --diff-filter=ACR "$base_ref"...HEAD \
                   | grep -E "$forbidden_patterns" || true)
           if [ -n "$added" ]; then
             echo "::error::IDE/editor config files should not be committed:"
