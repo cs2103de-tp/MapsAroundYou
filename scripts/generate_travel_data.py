@@ -135,7 +135,7 @@ def get_pt_route(start_coords, end_coords, date="03-09-2026", time_str="08:00:00
         else:
             print(f"  [!] PT API Error: {response.text}")
 
-        return -1, -1, -1, -1, -1, 0, 0.0
+        return -1, -1, -1, -1, -1, -1, 0.0
 
 
 def get_drive_walk_cycle_route(start_coords, end_coords, route_type):

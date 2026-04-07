@@ -111,6 +111,7 @@ public class DefaultSearchLogic implements SearchLogic {
         int maxRent = preferences.maxRent();
         int maxCommuteMinutes = preferences.maxCommuteMinutes();
         int maxTransfers = preferences.maxTransfers();
+        int resultLimit = preferences.resultLimit();
         boolean requireAircon = preferences.requireAircon();
         TransportMode transportMode = preferences.transportMode();
         if (maxRent < 0) {
@@ -122,6 +123,9 @@ public class DefaultSearchLogic implements SearchLogic {
         if (maxTransfers < 0) {
             throw new InvalidInputException("Maximum transfers must be at least 0.");
         }
+        if (resultLimit < 1) {
+            throw new InvalidInputException("Result limit must be at least 1.");
+        }
         if (transportMode == null) {
             throw new InvalidInputException("Transport mode must not be null.");
         }
@@ -132,7 +136,7 @@ public class DefaultSearchLogic implements SearchLogic {
                 maxTransfers,
                 requireAircon,
                 transportMode,
-                preferences.resultLimit(),
+                resultLimit,
                 preferences.excludeWalkDominantRoutes()
         );
     }
