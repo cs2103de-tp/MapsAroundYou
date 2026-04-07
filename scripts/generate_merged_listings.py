@@ -580,7 +580,7 @@ def build_listing_rows(
                     "address": f"Blk {block} {origin.street_name}, #{floor:02d}-{stack:02d}",
                     "roomType": room_type,
                     "sourcePlatform": rng.choice(SOURCE_PLATFORMS),
-                    "notes": rng.choice(profile["notes"]),
+                    "notes": rng.choice(profile["note_pool"]),
                 }
             )
             listing_idx += 1
@@ -631,7 +631,7 @@ def build_transit_rows(
             metrics = estimate_transit_metrics(distance_km, rng)
             rows.append(
                 {
-                    **metrics,
+                    "flat_id": origin.flat_id,
                     "destination_id": destination_id,
                     **metrics
                 }
