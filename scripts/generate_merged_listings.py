@@ -186,7 +186,7 @@ def generate_merged_listings(
     """
     Generate app-facing listings from the covered origin-node set.
 
-    Each origin_nodes.csv row represents one origin location, not one housing unit.
+    Each origin_node row represents one origin location, not one housing unit.
     Multiple listing rows may therefore share the same originNodeId.
     """
     rng = random.Random(seed)
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input",
         default=str(DEFAULT_INPUT_CSV),
-        help="Input origin-node CSV path (default: repo-relative origin_nodes.csv).",
+        help="Input rental CSV path (default: repo-relative origin_nodes.csv).",
     )
     parser.add_argument(
         "--output",

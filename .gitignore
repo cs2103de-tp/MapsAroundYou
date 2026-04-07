@@ -33,6 +33,7 @@ replay_pid*
 
 # VS Code workspace settings
 .vscode/
+*.code-workspace
 
 # Microsoft Office temporary files
 ~$*

@@ -80,7 +80,7 @@ The application uses local CSV datasets instead of live APIs at runtime. This do
 | `title` | String | Yes | Descriptive title for the property |
 | `monthlyRent` | int | Yes | Monthly rent in SGD |
 | `hasAircon` | boolean | Yes | Whether the listing has air conditioning |
-| `originNodeId` | String | Yes | Origin node ID used to match this listing to the offline transit matrix (maps to `Flat_ID` in `origin_nodes.csv` and may be shared by multiple listings at the same covered origin) |
+| `originNodeId` | String | Yes | Origin node ID used to match this listing to the offline transit matrix (maps to the origin node dataset in `commute_data/origin_nodes.csv` and may be shared by multiple listings at the same covered origin) |
 | `address` | String | Yes | Real block and street name |
 | `roomType` | String | Yes | Category of room (e.g., "Condo room", "HDB room", "Singleroom") |
 | `sourcePlatform` | String | Yes | Source platform (e.g., `PropertyGuru`, `99.co`) |

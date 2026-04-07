@@ -1,11 +1,13 @@
 package mapsaroundyou.logic;
 
+import mapsaroundyou.common.InvalidInputException;
 import mapsaroundyou.model.CommuteEstimate;
 import mapsaroundyou.model.DatasetMetadata;
 import mapsaroundyou.model.Destination;
 import mapsaroundyou.model.RentalListing;
 import mapsaroundyou.model.SearchResult;
 import mapsaroundyou.model.TransportMode;
+import mapsaroundyou.model.UserPreferences;
 import mapsaroundyou.service.CommuteEstimator;
 import mapsaroundyou.service.ListingFilter;
 import mapsaroundyou.service.ListingRanker;
@@ -24,7 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultSearchLogicTest {
     @Test
@@ -56,13 +60,182 @@ class DefaultSearchLogicTest {
         );
 
         logic.setDestination("D01");
-        logic.setPreferences(1600, 45, true, TransportMode.PUBLIC_TRANSPORT);
+        logic.setPreferences(new UserPreferences("D01", 1600, 45, 0, true,
+            TransportMode.PUBLIC_TRANSPORT, 10, false));
 
         List<SearchResult> results = logic.generateShortlist();
 
         assertEquals(List.of("L002", "L001"),
                 results.stream().map(result -> result.listing().listingId()).toList());
     }
+
+        @Test
+        void generateShortlist_excludesRoutesAboveTransferCap() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of(
+            new RentalListing("L001", "Low transfer", 1500, true, "R01", "Addr 1", "HDB", "PG", "Note"),
+            new RentalListing("L002", "High transfer", 1300, true, "R02", "Addr 2", "HDB", "PG", "Note")
+        ));
+        TravelTimeRepository travelTimeRepository = new InMemoryTravelTimeRepository(Map.of(
+            "R01:D01", new CommuteEstimate("R01", "D01", 30, 20, 10, 1, 1.50d),
+            "R02:D01", new CommuteEstimate("R02", "D01", 28, 22, 6, 3, 1.60d)
+        ));
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(travelTimeRepository),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+        logic.setPreferences(new UserPreferences("D01", 2000, 60, 1, false,
+            TransportMode.PUBLIC_TRANSPORT, 10, false));
+
+        List<SearchResult> results = logic.generateShortlist();
+
+        assertEquals(List.of("L001"), results.stream().map(result -> result.listing().listingId()).toList());
+        }
+
+        @Test
+        void setPreferences_throwsWhenDestinationInPreferencesConflictsWithCurrentDestination() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575"),
+            new Destination("D02", "CBD", "Downtown", "", "018989")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of());
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(new InMemoryTravelTimeRepository(Map.of())),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+
+        assertThrows(InvalidInputException.class, () -> logic.setPreferences(new UserPreferences(
+            "D02",
+            2000,
+            60,
+            1,
+            false,
+            TransportMode.PUBLIC_TRANSPORT,
+            10,
+            false
+        )));
+        }
+
+        @Test
+        void setPreferences_throwsWhenResultLimitIsZero() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of());
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(new InMemoryTravelTimeRepository(Map.of())),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+
+        assertThrows(InvalidInputException.class, () -> logic.setPreferences(new UserPreferences(
+            "D01",
+            2000,
+            60,
+            1,
+            false,
+            TransportMode.PUBLIC_TRANSPORT,
+            0,
+            false
+        )));
+        }
+
+        @Test
+        void setPreferences_throwsWhenResultLimitIsNegative() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of());
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(new InMemoryTravelTimeRepository(Map.of())),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+
+        assertThrows(InvalidInputException.class, () -> logic.setPreferences(new UserPreferences(
+            "D01",
+            2000,
+            60,
+            1,
+            false,
+            TransportMode.PUBLIC_TRANSPORT,
+            -1,
+            false
+        )));
+        }
+
+        @Test
+        void setPreferences_acceptsMinimumPositiveResultLimit() {
+        DestinationRepository destinationRepository = new InMemoryDestinationRepository(List.of(
+            new Destination("D01", "NUS", "University", "", "117575")
+        ));
+        ListingRepository listingRepository = new InMemoryListingRepository(List.of());
+        DatasetMetadataRepository datasetMetadataRepository =
+            () -> new DatasetMetadata(LocalDate.of(2026, 3, 8), "Fixture dataset");
+
+        DefaultSearchLogic logic = new DefaultSearchLogic(
+            destinationRepository,
+            listingRepository,
+            datasetMetadataRepository,
+            new ListingFilter(),
+            new CommuteEstimator(new InMemoryTravelTimeRepository(Map.of())),
+            new ListingRanker(),
+            new RouteAnalyzer(0.6d)
+        );
+
+        logic.setDestination("D01");
+
+        assertDoesNotThrow(() -> logic.setPreferences(new UserPreferences(
+            "D01",
+            2000,
+            60,
+            1,
+            false,
+            TransportMode.PUBLIC_TRANSPORT,
+            1,
+            false
+        )));
+        }
 
     private static final class InMemoryDestinationRepository implements DestinationRepository {
         private final Map<String, Destination> destinationsById;
