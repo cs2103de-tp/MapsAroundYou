@@ -2,7 +2,7 @@
 
 **Product:** MapsAroundYou — Smart Rental Search
 **Version:** 1.0
-**Last Updated:** April 14, 2026
+**Last Updated:** April 21, 2026
 **Status:** Active
 
 ---
@@ -61,7 +61,8 @@ International students and new working professionals arriving in Singapore face 
 | **v0.2** | First increment — destination + rent filter with GUI baseline | Week 9 |
 | **v0.3** | Earlier release — richer filters, route breakdown, settings, and persistence | Week 10 |
 | **v0.4** | Previous release — professor-feedback hardening, GUI application boundary cleanup, and clearer results UX | Week 11 |
-| **v0.5** | Current release — cross-platform run flows, stronger onboarding docs, architecture diagrams, and targeted GUI polish | Week 12 |
+| **v0.5** | Previous release — cross-platform run flows, stronger onboarding docs, architecture diagrams, and targeted GUI polish | Week 12 |
+| **v0.5.1** | Current release — GUI-guide screenshot refresh plus test-coverage hardening for service and storage layers | Week 12 follow-up |
 
 ---
 

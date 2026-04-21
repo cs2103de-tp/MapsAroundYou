@@ -5,7 +5,7 @@
 **Goal:** Commuting mainly between home and a specific destination (campus/office/place) while minimizing daily travel rather than securing a specific postal code.
 
 ## Legend
-- **Current shipped release:** `v0.5`
+- **Current shipped release:** `v0.5.1`
 - Each story includes **Acceptance Criteria (AC)** written to be testable.
 
 ---

@@ -8,7 +8,7 @@
 
 A desktop GUI application that helps newcomers to Singapore find rental listings based on a primary destination (e.g., campus, office, hospital, or landmark) and commute constraints, delivered as a runnable JAR.
 
-### In-scope for the current `v0.5` release
+### In-scope for the current `v0.5.1` release
 
 - Primary destination selection plus monthly rent filtering
 - Commute, transfer, and walking caps with ranked shortlist output

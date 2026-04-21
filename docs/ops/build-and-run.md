@@ -43,7 +43,7 @@ First build the fat JAR:
 Then run the CLI entrypoint directly:
 
 ```powershell
-java -cp .\build\libs\MapsAroundYou-0.5-all.jar mapsaroundyou.cli.MapsAroundYouApp
+java -cp .\build\libs\MapsAroundYou-0.5.1-all.jar mapsaroundyou.cli.MapsAroundYouApp
 ```
 
 Interactive mode stays open for repeated searches until the user types `exit`.
@@ -64,7 +64,7 @@ Blank interactive answers keep the value shown in brackets.
 ### Run the Flag-Driven CLI
 
 ```powershell
-java -cp .\build\libs\MapsAroundYou-0.5-all.jar mapsaroundyou.cli.MapsAroundYouApp search --destination D01 --max-rent 2200 --max-commute 45 --max-transfers 1 --max-walk 10 --result-limit 5 --sort balanced --require-aircon --exclude-walk-dominant
+java -cp .\build\libs\MapsAroundYou-0.5.1-all.jar mapsaroundyou.cli.MapsAroundYouApp search --destination D01 --max-rent 2200 --max-commute 45 --max-transfers 1 --max-walk 10 --result-limit 5 --sort balanced --require-aircon --exclude-walk-dominant
 ```
 
 Supported flags:
@@ -82,7 +82,7 @@ Supported flags:
 ### Help Output
 
 ```powershell
-java -cp .\build\libs\MapsAroundYou-0.5-all.jar mapsaroundyou.cli.MapsAroundYouApp --help
+java -cp .\build\libs\MapsAroundYou-0.5.1-all.jar mapsaroundyou.cli.MapsAroundYouApp --help
 ```
 
 ### Local Preferences
